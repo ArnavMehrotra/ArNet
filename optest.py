@@ -142,3 +142,14 @@ def test_gradient(lib: ctypes.CDLL):
   good = np.allclose(test, check, rtol=1e-3, atol=1e-3)
 
   return good
+
+def run_tests(lib: ctypes.CDLL):
+    assert test_gemm(lib), "gemm failed"
+    assert test_matAdd(lib), "matAdd failed"
+    assert test_scalarAdd(lib), "scalarAdd failed"
+    assert test_relu(lib), "relu failed"
+    assert test_softmax(lib), "softmax failed"
+    assert test_gradient(lib), "gradient failed"
+    assert test_biasAdd(lib), "biasAdd failed"
+
+    print("All tests passed!")
