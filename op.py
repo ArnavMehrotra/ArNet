@@ -1,6 +1,37 @@
 import ctypes
 import numpy as np
 
+def gemmInt(a: np.array, b: np.array, lib: ctypes.CDLL) -> np.array:
+  j, k = a.shape
+  m, n = b.shape
+
+  if(m != k):
+    print("matrix dimensions do not match")
+    return
+
+  N = j * n
+  op1 = np.array(a, dtype=np.int32)
+  op2 = np.array(b, dtype=np.int32)
+
+  out = np.zeros(N, dtype=np.int32)
+
+  lib.launchMultInt.argtypes =  [ctypes.POINTER(ctypes.c_int),
+                              ctypes.POINTER(ctypes.c_int),
+                              ctypes.POINTER(ctypes.c_int),
+                              ctypes.c_int,
+                              ctypes.c_int,
+                              ctypes.c_int,
+                              ctypes.c_int]
+
+  a_ptr = op1.ctypes.data_as(ctypes.POINTER(ctypes.c_int))
+  b_ptr = op2.ctypes.data_as(ctypes.POINTER(ctypes.c_int))
+  c_ptr = out.ctypes.data_as(ctypes.POINTER(ctypes.c_int))
+
+  lib.launchMultInt(a_ptr, b_ptr, c_ptr, j, k, m, n)
+
+  c_np = np.ctypeslib.as_array(c_ptr, (N,)).reshape(j, n)
+
+  return c_np
 
 def gemm(a: np.array, b: np.array, lib: ctypes.CDLL) -> np.array:
 
