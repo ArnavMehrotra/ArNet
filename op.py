@@ -1,4 +1,3 @@
-%%writefile op.py
 import ctypes
 import numpy as np
 
