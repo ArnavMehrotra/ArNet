@@ -1,4 +1,3 @@
-%%writefile launch.cu
 #include <stdio.h>
 #include <cuda.h>
 #include "op.h"
