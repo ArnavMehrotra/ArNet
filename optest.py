@@ -152,4 +152,4 @@ def run_tests(lib: ctypes.CDLL):
     assert test_gradient(lib), "gradient failed"
     assert test_biasAdd(lib), "biasAdd failed"
 
-    print("All tests passed!")
+    print("All tests passed!!")
