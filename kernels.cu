@@ -74,7 +74,9 @@ __global__ void gemm2(T *A, T *B, T *C, int J, int K, int M, int N) {
     __syncthreads();
   }
 
-  if(col < N && row < J) {
+  int rowBound = aTrans ? K : J;
+  int colBound = bTrans ? M : N;
+  if(col < colBound && row < rowBound) {
     C[row * N + col] = sum;
   }
 
