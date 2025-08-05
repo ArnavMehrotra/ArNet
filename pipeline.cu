@@ -42,11 +42,12 @@ extern "C" void forward_pass(float* X, float* W1, float* B1, float* W2, float* B
     Net nn = Net(ops);
     nn.forward();
 
-    delete t_x; delete t_w1; delete t_b1; delete t_h; delete t_z;
-
-    float *result = t_h->to_host();
+    float *result = t_z->to_host();
     memcpy(out, result, J * M * sizeof(float));
     free(result);
+
+    delete t_x; delete t_w1; delete t_b1; delete t_h; delete t_z;
+
 
 
     // float* result = t_y_softmax->to_host();
