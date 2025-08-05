@@ -12,6 +12,17 @@ class Tensor {
     size_t _size;
 
   public:
+    Tensor(std::vector<int> shape) {
+      _shape = shape;
+      
+      _n_elem = 1;
+      for(int i : shape) _n_elem *= i;
+
+      _size = _n_elem * sizeof(T);
+      cudaMalloc((void**)&_data, _size);
+      cudaMemset(_data, 0, _size);
+    }
+
     Tensor(T* data, std::vector<int> shape){
       _shape = shape;
       
