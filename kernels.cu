@@ -57,7 +57,7 @@ __global__ void gemm2(T *A, T *B, T *C, int J, int K, int M, int N) {
     int bRow = bTrans ? col : bTile;
     int bCol = bTrans ? bTile : col;
 
-    if(bRow < K && bCol < N) {
+    if(bRow < M && bCol < N) {
       b[threadIdx.y][threadIdx.x] = B[(bRow * N) + bCol];
     }
     else {
