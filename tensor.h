@@ -73,5 +73,6 @@ class Tensor {
 
     ~Tensor() {
       cudaFree(_data);
+      cudaFree(_grad);
     }
 };

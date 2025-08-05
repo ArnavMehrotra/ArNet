@@ -176,8 +176,7 @@ class Gemm: public Op<T> {
       dim3 gridDim((N + BLOCK_SIZE - 1) / BLOCK_SIZE,
                   (J + BLOCK_SIZE - 1) / BLOCK_SIZE);
 
-      // gemm2<false, false, T><<<gridDim, blockDim>>>(a->data(), b->data(), c->data(), J, K, M, N);
-      gemm<T><<<gridDim, blockDim>>>(a->data(), b->data(), c->data(), J, K, M, N);
+      gemm2<false, false, T><<<gridDim, blockDim>>>(a->data(), b->data(), c->data(), J, K, M, N);
 
       cudaDeviceSynchronize();
     }
