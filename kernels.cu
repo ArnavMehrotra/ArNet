@@ -78,7 +78,6 @@ __global__ void gemm2(T *A, T *B, T *C, int J, int K, int M, int N) {
   int outCols = bTrans ? M : N;
   if(col < outCols && row < outRows) {
     C[row * outCols + col] = sum;
-    C[row * outCols + col] = 1;
   }
 
 }
