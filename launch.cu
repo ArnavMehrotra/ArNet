@@ -178,8 +178,9 @@ extern "C" void launchMult(float *A, float *B, float *C, int J, int K, int M, in
 extern "C" void launchMult2(float *A, float *B, float *C, int J, int K, int M, int N, bool backward) {
   Tensor<float> *t_A = new Tensor<float>(A, {J, K});
   Tensor<float> *t_B = new Tensor<float>(B, {M, N});
-  Tensor<float> *t_C = new Tensor<float>(C, {J, N});
 
+  int outcols = backward ? M : N;
+  Tensor<float> *t_C = new Tensor<float>(C, {J, outcols});
   std::vector<Tensor<float>*> tensors = {t_A, t_B, t_C};
 
   Gemm<float> op = Gemm<float>(tensors);
