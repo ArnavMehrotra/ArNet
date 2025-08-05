@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <stdexcept>
 #include "kernels.h"
 #include "tensor.h"
 
@@ -14,7 +15,7 @@ class Op {
 
       _tensors = tensors;
 
-      if (_tensors.size() != expected_num_tensors()) {
+      if (!valid_tensors()) {
         throw std::invalid_argument(
           "tensors are not valid for operation"
         );
