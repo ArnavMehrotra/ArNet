@@ -143,6 +143,44 @@ def test_gradient(lib: ctypes.CDLL):
 
   return good
 
+def test_mlp(lib: ctypes.CDLL):
+    j, k = 4, 8
+    m, n = 16, 3
+
+    x = np.random.rand(j, k).astype(np.float32)
+    w1 = np.random.rand(k, m).astype(np.float32)
+    b1 = np.random.rand(m).astype(np.float32)
+    w2 = np.random.rand(m, n).astype(np.float32)
+    b2 = np.random.rand(n).astype(np.float32)
+
+    out = np.zeros((j, n), dtype=np.float32)
+
+    lib.forward_pass.argtypes = [
+    ctypes.POINTER(ctypes.c_float),
+    ctypes.POINTER(ctypes.c_float),
+    ctypes.POINTER(ctypes.c_float),
+    ctypes.POINTER(ctypes.c_float),
+    ctypes.POINTER(ctypes.c_float),
+    ctypes.POINTER(ctypes.c_float),
+    ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int
+    ]
+
+    out_ptr = out.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
+    lib.forward_pass(x.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+                    w1.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+                    b1.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+                    w2.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+                    b2.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+                    out_ptr, j, k, m, n)
+    
+    test = np.ctypeslib.as_array(out_ptr, (j, n)).reshape(j, n)
+
+    correct = numpy_softmax(np.maximum(x @ w1 + b1, 0) @ w2 + b2)
+
+    good = np.allclose(test, correct, rtol=1e-3, atol=1e-3)
+
+    return good
+
 def run_tests(lib: ctypes.CDLL):
     assert test_gemm(lib), "gemm failed"
     assert test_matAdd(lib), "matAdd failed"
@@ -151,5 +189,6 @@ def run_tests(lib: ctypes.CDLL):
     assert test_softmax(lib), "softmax failed"
     assert test_gradient(lib), "gradient failed"
     assert test_biasAdd(lib), "biasAdd failed"
+    assert test_mlp(lib), "mlp failed"
 
     print("All tests passed!!")
