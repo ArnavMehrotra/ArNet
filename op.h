@@ -192,10 +192,10 @@ class Gemm: public Op<T> {
       int N = b->shape()[1];
 
       dim3 blockDim(BLOCK_SIZE, BLOCK_SIZE);
-      dim3 gridDim((N + BLOCK_SIZE - 1) / BLOCK_SIZE,
+      dim3 gridDim((M + BLOCK_SIZE - 1) / BLOCK_SIZE,
                   (J + BLOCK_SIZE - 1) / BLOCK_SIZE);
 
-      gemm2<true, false, T><<<gridDim, blockDim>>>(a->data(), b->data(), c->data(), J, K, M, N);
+      gemm2<false, true, T><<<gridDim, blockDim>>>(a->data(), b->data(), c->data(), J, K, M, N);
 
       cudaDeviceSynchronize();
     }
