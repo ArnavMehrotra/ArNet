@@ -7,10 +7,18 @@ template<typename T>
 class Op {
   protected:
     std::vector<Tensor<T>*> _tensors;
+    virtual bool valid_tensors() const = 0;
 
   public:
     Op(std::vector<Tensor<T>*> tensors) {
+
       _tensors = tensors;
+
+      if (_tensors.size() != expected_num_tensors()) {
+        throw std::invalid_argument(
+          "tensors are not valid for operation"
+        );
+      }
     }
 
     virtual void forward() = 0;
@@ -18,6 +26,11 @@ class Op {
 
 template<typename T>
 class Gradient : public Op<T> {
+  protected:
+    bool valid_tensors(size_t count) const override {
+      return count == 2;
+    }
+
   public:
     Gradient(std::vector<Tensor<T>*> tensors) : Op<T>(tensors) {}
   
@@ -28,8 +41,6 @@ class Gradient : public Op<T> {
 
       int J = a->shape()[0];
       int K = a->shape()[1];
-
-      int N = J * K;
 
       dim3 blockDim(BLOCK_SIZE);
       dim3 gridDim(J);
@@ -43,6 +54,11 @@ class Gradient : public Op<T> {
 
 template<typename T>
 class Softmax : public Op<T> {
+  protected:
+    bool valid_tensors(size_t count) const override {
+      return count == 2;
+    }
+
   public:
     Softmax(std::vector<Tensor<T>*> tensors) : Op<T>(tensors) {}
 
@@ -66,6 +82,11 @@ class Softmax : public Op<T> {
 
 template<typename T>
 class Relu : public Op<T> {
+  protected:
+    bool valid_tensors(size_t count) const override {
+      return count == 2;
+    }
+
   public:
     Relu(std::vector<Tensor<T>*> tensors) : Op<T>(tensors) {}
 
@@ -86,6 +107,11 @@ class Relu : public Op<T> {
 
 template<typename T>
 class MatAdd: public Op<T> {
+  protected:
+    bool valid_tensors(size_t count) const override {
+      return count == 3;
+    }
+  
   public:
     MatAdd(std::vector<Tensor<T>*> tensors) : Op<T>(tensors) {}
 
@@ -111,10 +137,17 @@ class MatAdd: public Op<T> {
 
 template<typename T>
 class BiasAdd: public Op<T> {
+  protected:
+    bool valid_tensors(size_t count) const override {
+      return count == 3;
+    }
+
   public:
     BiasAdd(std::vector<Tensor<T>*> tensors) : Op<T>(tensors) {}
 
+
     void forward() {
+
       Tensor<T> *a = this->_tensors[0];
       Tensor<T> *b = this->_tensors[1];
       Tensor<T> *c = this->_tensors[2];
@@ -134,6 +167,11 @@ class BiasAdd: public Op<T> {
 
 template<typename T>
 class Gemm: public Op<T> {
+  protected:
+    bool valid_tensors(size_t count) const override {
+      return count == 3;
+    }
+  
   public:
     Gemm(std::vector<Tensor<T>*> tensors) : Op<T>(tensors) {}
 
