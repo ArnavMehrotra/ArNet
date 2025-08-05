@@ -21,7 +21,7 @@ template<typename T>
 class Gradient : public Op<T> {
   public:
     Gradient(std::vector<Tensor<T>*> tensors) : Op<T>(tensors) {
-      if(_tensors.size() != 3) {
+      if(tensors.size() != 3) {
         throw std::invalid_argument("Gradient requires exactly 3 tensors");
       }
     }
@@ -48,7 +48,7 @@ template<typename T>
 class Softmax : public Op<T> {
   public:
     Softmax(std::vector<Tensor<T>*> tensors) : Op<T>(tensors) {
-      if (_tensors.size() != 2) {
+      if (tensors.size() != 2) {
         throw std::invalid_argument("Softmax requires exactly 2 tensors");
       }
     }
@@ -75,7 +75,7 @@ template<typename T>
 class Relu : public Op<T> {
   public:
     Relu(std::vector<Tensor<T>*> tensors) : Op<T>(tensors) {
-      if (_tensors.size() != 2) {
+      if (tensors.size() != 2) {
         throw std::invalid_argument("Relu requires exactly 2 tensors");
       }
     }
@@ -99,7 +99,7 @@ template<typename T>
 class MatAdd: public Op<T> {
   public:
     MatAdd(std::vector<Tensor<T>*> tensors) : Op<T>(tensors) {
-      if (_tensors.size() != 3) {
+      if (tensors.size() != 3) {
         throw std::invalid_argument("MatAdd requires exactly 3 tensors");
       }
     }
@@ -128,7 +128,7 @@ template<typename T>
 class BiasAdd: public Op<T> {
   public:
     BiasAdd(std::vector<Tensor<T>*> tensors) : Op<T>(tensors) {
-      if(_tensors.size() != 3) {
+      if(tensors.size() != 3) {
         throw std::invalid_argument("BiasAdd requires exactly 3 tensors");
       }
     }
@@ -157,7 +157,7 @@ template<typename T>
 class Gemm: public Op<T> {
   public:
     Gemm(std::vector<Tensor<T>*> tensors) : Op<T>(tensors) {
-      if (_tensors.size() != 3) {
+      if (tensors.size() != 3) {
         throw std::invalid_argument("Gemm requires exactly 3 tensors");
       }
     }
