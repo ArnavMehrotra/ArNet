@@ -8,18 +8,10 @@ template<typename T>
 class Op {
   protected:
     std::vector<Tensor<T>*> _tensors;
-    virtual bool valid_tensors() const = 0;
 
   public:
     Op(std::vector<Tensor<T>*> tensors) {
-
       _tensors = tensors;
-
-      if (!valid_tensors()) {
-        throw std::invalid_argument(
-          "tensors are not valid for operation"
-        );
-      }
     }
 
     virtual void forward() = 0;
@@ -27,13 +19,12 @@ class Op {
 
 template<typename T>
 class Gradient : public Op<T> {
-  protected:
-    bool valid_tensors() const override {
-      return _tensors.size() == 2;
-    }
-
   public:
-    Gradient(std::vector<Tensor<T>*> tensors) : Op<T>(tensors) {}
+    Gradient(std::vector<Tensor<T>*> tensors) : Op<T>(tensors) {
+      if(_tensors.size() != 3) {
+        throw std::invalid_argument("Gradient requires exactly 3 tensors");
+      }
+    }
   
     void forward() {
       Tensor<T> *a = this->_tensors[0];
@@ -55,13 +46,12 @@ class Gradient : public Op<T> {
 
 template<typename T>
 class Softmax : public Op<T> {
-  protected:
-    bool valid_tensors() const override {
-      return _tensors.size() == 2;
-    }
-
   public:
-    Softmax(std::vector<Tensor<T>*> tensors) : Op<T>(tensors) {}
+    Softmax(std::vector<Tensor<T>*> tensors) : Op<T>(tensors) {
+      if (_tensors.size() != 2) {
+        throw std::invalid_argument("Softmax requires exactly 2 tensors");
+      }
+    }
 
     void forward() {
       Tensor<T> *a = this->_tensors[0];
@@ -83,13 +73,12 @@ class Softmax : public Op<T> {
 
 template<typename T>
 class Relu : public Op<T> {
-  protected:
-    bool valid_tensors() const override {
-      return _tensors.size() == 2;
-    }
-
   public:
-    Relu(std::vector<Tensor<T>*> tensors) : Op<T>(tensors) {}
+    Relu(std::vector<Tensor<T>*> tensors) : Op<T>(tensors) {
+      if (_tensors.size() != 2) {
+        throw std::invalid_argument("Relu requires exactly 2 tensors");
+      }
+    }
 
     void forward() {
       Tensor<T> *a = this->_tensors[0];
@@ -108,13 +97,12 @@ class Relu : public Op<T> {
 
 template<typename T>
 class MatAdd: public Op<T> {
-  protected:
-    bool valid_tensors() const override {
-      return _tensors.size() == 3;
-    }
-  
   public:
-    MatAdd(std::vector<Tensor<T>*> tensors) : Op<T>(tensors) {}
+    MatAdd(std::vector<Tensor<T>*> tensors) : Op<T>(tensors) {
+      if (_tensors.size() != 3) {
+        throw std::invalid_argument("MatAdd requires exactly 3 tensors");
+      }
+    }
 
     void forward() {
         Tensor<T> *t_a = this->_tensors[0];
@@ -138,13 +126,12 @@ class MatAdd: public Op<T> {
 
 template<typename T>
 class BiasAdd: public Op<T> {
-  protected:
-    bool valid_tensors() const override {
-      return _tensors.size() == 3;
-    }
-
   public:
-    BiasAdd(std::vector<Tensor<T>*> tensors) : Op<T>(tensors) {}
+    BiasAdd(std::vector<Tensor<T>*> tensors) : Op<T>(tensors) {
+      if(_tensors.size() != 3) {
+        throw std::invalid_argument("BiasAdd requires exactly 3 tensors");
+      }
+    }
 
 
     void forward() {
@@ -168,13 +155,12 @@ class BiasAdd: public Op<T> {
 
 template<typename T>
 class Gemm: public Op<T> {
-  protected:
-    bool valid_tensors() const override {
-      return _tensors.size() == 3;
-    }
-  
   public:
-    Gemm(std::vector<Tensor<T>*> tensors) : Op<T>(tensors) {}
+    Gemm(std::vector<Tensor<T>*> tensors) : Op<T>(tensors) {
+      if (_tensors.size() != 3) {
+        throw std::invalid_argument("Gemm requires exactly 3 tensors");
+      }
+    }
 
     void forward() {
       Tensor<T> *a = this->_tensors[0];
