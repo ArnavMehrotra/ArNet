@@ -13,38 +13,36 @@
 // }
 
 
-void forward_pass(float* X, float* W1, float* b1, float* W2, float* b2, float* out,
+void forward_pass(float* X, float* W1, float* B1, float* W2, float* B2, float* out,
     int J, int K, int M, int N) {
-    Tensor<float>* x = new Tensor<float>(X, {J, K});
-    Tensor<float>* w1 = new Tensor<float>(W1, {K, M});
-    Tensor<float>* b1 = new Tensor<float>(b1, {M});
-    Tensor<float>* w2 = new Tensor<float>(W2, {M, N});
-    Tensor<float>* b2 = new Tensor<float>(b2, {N});
-    Tensor<float>* h = new Tensor<float>({J, M});
-    Tensor<float>* h_relu = new Tensor<float>({J, M});
-    Tensor<float>* y = new Tensor<float>({J, N});
-    Tensor<float>* y_softmax = new Tensor<float>({J, N});
+    Tensor<float>* t_x = new Tensor<float>(X, {J, K});
+    Tensor<float>* t_w1 = new Tensor<float>(W1, {K, M});
+    Tensor<float>* t_b1 = new Tensor<float>(B1, {M});
+    Tensor<float>* t_w2 = new Tensor<float>(W2, {M, N});
+    Tensor<float>* t_b2 = new Tensor<float>(B2, {N});
+    Tensor<float>* t_h = new Tensor<float>({J, M});
+    Tensor<float>* t_h_relu = new Tensor<float>({J, M});
+    Tensor<float>* t_y = new Tensor<float>({J, N});
+    Tensor<float>* t_y_softmax = new Tensor<float>({J, N});
 
-    // layer 1: h = relu(x @ w1 + b1)
-    Gemm<float> gemm1({x, w1, h});
+    Gemm<float> gemm1({t_x, t_w1, t_h});
     gemm1.forward();
-    BiasAdd<float> add1({h, b1});
+    BiasAdd<float> add1({t_h, t_b1});
     add1.forward();
-    Relu<float> relu({h, h_relu});
+    Relu<float> relu({t_h, t_h_relu});
     relu.forward();
 
-    // layer 2: y = softmax(h_relu @ w2 + b2)
-    Gemm<float> gemm2({h_relu, w2, y});
+    Gemm<float> gemm2({t_h_relu, t_w2, t_y});
     gemm2.forward();
-    BiasAdd<float> add2({y, b2});
+    BiasAdd<float> add2({t_y, t_b2});
     add2.forward();
-    Softmax<float> sm({y, y_softmax});
+    Softmax<float> sm({t_y, t_y_softmax});
     sm.forward();
 
-    float* result = y_softmax->to_host();
+    float* result = t_y_softmax->to_host();
     memcpy(out, result, J * N * sizeof(float));
     free(result);
 
-    delete x; delete w1; delete b1; delete w2; delete b2;
-    delete h; delete h_relu; delete y; delete y_softmax;
+    delete t_x; delete t_w1; delete t_b1; delete t_w2; delete t_b2;
+    delete t_h; delete t_h_relu; delete t_y; delete t_y_softmax;
 }
