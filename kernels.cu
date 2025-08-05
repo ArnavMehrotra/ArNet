@@ -30,7 +30,7 @@ __global__ void biasAdd(T* A, T* B, T* C, int J, int K) {
 
 }
 
-template <typename T>
+template <bool aTrans, bool bTrans, typename T>
 __global__ void gemm2(T *A, T *B, T *C, int J, int K, int M, int N) {
 
   int col = blockIdx.x * blockDim.x + threadIdx.x;
@@ -42,18 +42,23 @@ __global__ void gemm2(T *A, T *B, T *C, int J, int K, int M, int N) {
   T sum = 0;
 
   for(int t = 0; t < (K + BLOCK_SIZE - 1) / BLOCK_SIZE; t++) {
-    int a_i = (t * BLOCK_SIZE) + threadIdx.x;
+    int aTile = (t * BLOCK_SIZE) + threadIdx.x;
+    int aRow = aTrans ? aTile : row;
+    int aCol = aTrans ? row : aTile;
 
-    if(a_i < K && row < J){
-      a[threadIdx.y][threadIdx.x] = A[(row * K) + a_i];
+    if(aRow < J && aCol < K){
+      a[threadIdx.y][threadIdx.x] = A[(aRow * K) + aCol];
     }
     else{
       a[threadIdx.y][threadIdx.x] = 0;
     }
 
-    int b_i = (t * BLOCK_SIZE) + threadIdx.y;
-    if(b_i < K && col < N) {
-      b[threadIdx.y][threadIdx.x] = B[(b_i * N) + col];
+    int bTile = (t * BLOCK_SIZE) + threadIdx.y;
+    int bRow = bTrans ? col : bTile;
+    int bCol = bTrans ? bTile : col;
+
+    if(bRow < K && bCol < N) {
+      b[threadIdx.y][threadIdx.x] = B[(bRow * N) + bCol];
     }
     else {
       b[threadIdx.y][threadIdx.x] = 0;
@@ -250,7 +255,7 @@ template __global__ void matAdd<float>(float *A, float *B, float *C, int N);
 template __global__ void scalarAdd<float>(float *A, float *B, float S, int N);
 template __global__ void biasAdd<float>(float *A, float *B, float *C, int J, int K);
 template __global__ void gemm<float>(float *A, float *B, float *C, int J, int K, int M, int N);
-template __global__ void gemm2<float>(float *A, float *B, float *C, int J, int K, int M, int N);
+template __global__ void gemm2<bool, bool, float>(float *A, float *B, float *C, int J, int K, int M, int N);
 template __global__ void gemm<int>(int *A, int *B, int *C, int J, int K, int M, int N);
 template __global__ void softmax<float>(float *A, float *B, int J, int K);
 template __global__ void gradient<float>(float *A, uint32_t *Y, float *B, int J, int K);

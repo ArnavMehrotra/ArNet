@@ -176,7 +176,26 @@ class Gemm: public Op<T> {
       dim3 gridDim((N + BLOCK_SIZE - 1) / BLOCK_SIZE,
                   (J + BLOCK_SIZE - 1) / BLOCK_SIZE);
 
-      gemm2<T><<<gridDim, blockDim>>>(a->data(), b->data(), c->data(), J, K, M, N);
+      gemm2<false, false, T><<<gridDim, blockDim>>>(a->data(), b->data(), c->data(), J, K, M, N);
+
+      cudaDeviceSynchronize();
+    }
+
+    void backward() {
+      Tensor<T> *a = this->_tensors[0];
+      Tensor<T> *b = this->_tensors[1];
+      Tensor<T> *c = this->_tensors[2];
+
+      int J = a->shape()[0];
+      int K = a->shape()[1];
+      int M = b->shape()[0];
+      int N = b->shape()[1];
+
+      dim3 blockDim(BLOCK_SIZE, BLOCK_SIZE);
+      dim3 gridDim((N + BLOCK_SIZE - 1) / BLOCK_SIZE,
+                  (J + BLOCK_SIZE - 1) / BLOCK_SIZE);
+
+      gemm2<true, false, T><<<gridDim, blockDim>>>(a->data(), b->data(), c->data(), J, K, M, N);
 
       cudaDeviceSynchronize();
     }

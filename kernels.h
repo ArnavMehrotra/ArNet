@@ -15,7 +15,7 @@ __global__ void biasAdd(T *A, T *B, T *C, int J, int K);
 template <typename T>
 __global__ void gemm(T *A, T *B, T *C, int J, int K, int M, int N);
 
-template <typename T>
+template <bool aTrans, bool bTrans, typename T>
 __global__ void gemm2(T *A, T *B, T *C, int J, int K, int M, int N);
 
 
