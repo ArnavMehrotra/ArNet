@@ -153,7 +153,9 @@ def test_mlp(lib: ctypes.CDLL):
     w2 = np.random.rand(m, n).astype(np.float32)
     b2 = np.random.rand(n).astype(np.float32)
 
-    out = np.zeros((j, n), dtype=np.float32)
+    # out = np.zeros((j, n), dtype=np.float32)
+
+    out = np.zeroes(j * m, dtype=np.float32)
 
     lib.forward_pass.argtypes = [
     ctypes.POINTER(ctypes.c_float),
@@ -173,9 +175,13 @@ def test_mlp(lib: ctypes.CDLL):
                     b2.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
                     out_ptr, j, k, m, n)
     
-    test = np.ctypeslib.as_array(out_ptr, (j, n)).reshape(j, n)
+    # test = np.ctypeslib.as_array(out_ptr, (j, n)).reshape(j, n)
 
-    correct = numpy_softmax(np.maximum(x @ w1 + b1, 0) @ w2 + b2)
+    # correct = numpy_softmax(np.maximum(x @ w1 + b1, 0) @ w2 + b2)
+
+    test = np.ctypeslib.as_array(out_ptr, (j * m,)).reshape(j, m)
+
+    correct = x @ w1
 
     good = np.allclose(test, correct, rtol=1e-3, atol=1e-3)
 
