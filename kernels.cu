@@ -251,12 +251,12 @@ __global__ void relu(T *A, T *B, int N) {
 }
 
 
-template __global__ void matAdd<float>(float *A, float *B, float *C, int N);
-template __global__ void scalarAdd<float>(float *A, float *B, float S, int N);
-template __global__ void biasAdd<float>(float *A, float *B, float *C, int J, int K);
-template __global__ void gemm<float>(float *A, float *B, float *C, int J, int K, int M, int N);
-template __global__ void gemm2<bool, bool, float>(float *A, float *B, float *C, int J, int K, int M, int N);
-template __global__ void gemm<int>(int *A, int *B, int *C, int J, int K, int M, int N);
-template __global__ void softmax<float>(float *A, float *B, int J, int K);
-template __global__ void gradient<float>(float *A, uint32_t *Y, float *B, int J, int K);
-template __global__ void relu<float>(float *A, float *B, int N);
+// template __global__ void matAdd<float>(float *A, float *B, float *C, int N);
+// template __global__ void scalarAdd<float>(float *A, float *B, float S, int N);
+// template __global__ void biasAdd<float>(float *A, float *B, float *C, int J, int K);
+// template __global__ void gemm<float>(float *A, float *B, float *C, int J, int K, int M, int N);
+// template __global__ void gemm2<bool, bool, float>(float *A, float *B, float *C, int J, int K, int M, int N);
+// template __global__ void gemm<int>(int *A, int *B, int *C, int J, int K, int M, int N);
+// template __global__ void softmax<float>(float *A, float *B, int J, int K);
+// template __global__ void gradient<float>(float *A, uint32_t *Y, float *B, int J, int K);
+// template __global__ void relu<float>(float *A, float *B, int N);
