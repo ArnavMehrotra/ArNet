@@ -7,6 +7,7 @@ template <typename T>
 class Tensor {
   private:
     T* _data;
+    T* _grad;
     std::vector<int> _shape;
     int _n_elem;
     size_t _size;
@@ -21,6 +22,9 @@ class Tensor {
       _size = _n_elem * sizeof(T);
       cudaMalloc((void**)&_data, _size);
       cudaMemset(_data, 0, _size);
+
+      cudaMalloc((void**)&_grad, _size);
+      cudaMemset(_grad, 0, _size);
     }
 
     Tensor(T* data, std::vector<int> shape){
@@ -40,8 +44,19 @@ class Tensor {
       return host_data;
     }
 
+    T* grad_to_host() {
+      T* host_grad = (T*)malloc(_size);
+      cudaMemcpy(host_grad, _grad, _size, cudaMemcpyDeviceToHost);
+      cudaDeviceSynchronize();
+      return host_grad;
+    }
+
     size_t n_bytes() {
       return _size;
+    }
+
+    T* grad() {
+      return _grad;
     }
 
     T* data() {
