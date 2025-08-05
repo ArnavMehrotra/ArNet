@@ -189,7 +189,7 @@ extern "C" void launchMult2(float *A, float *B, float *C, int J, int K, int M, i
   op.backward();
 
   float* result = t_A->grad_to_host();
-  memcpy(A, result, t_C->n_bytes());
+  memcpy(A, result, t_A->n_bytes());
   free(result);
 
   delete t_A;
