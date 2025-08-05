@@ -13,7 +13,7 @@
 // }
 
 
-void forward_pass(float* X, float* W1, float* B1, float* W2, float* B2, float* out,
+extern "C" void forward_pass(float* X, float* W1, float* B1, float* W2, float* B2, float* out,
     int J, int K, int M, int N) {
     Tensor<float>* t_x = new Tensor<float>(X, {J, K});
     Tensor<float>* t_w1 = new Tensor<float>(W1, {K, M});
