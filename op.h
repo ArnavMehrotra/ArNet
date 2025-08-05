@@ -27,8 +27,8 @@ class Op {
 template<typename T>
 class Gradient : public Op<T> {
   protected:
-    bool valid_tensors(size_t count) const override {
-      return count == 2;
+    bool valid_tensors() const override {
+      return _tensors.size() == 2;
     }
 
   public:
@@ -55,8 +55,8 @@ class Gradient : public Op<T> {
 template<typename T>
 class Softmax : public Op<T> {
   protected:
-    bool valid_tensors(size_t count) const override {
-      return count == 2;
+    bool valid_tensors() const override {
+      return _tensors.size() == 2;
     }
 
   public:
@@ -83,8 +83,8 @@ class Softmax : public Op<T> {
 template<typename T>
 class Relu : public Op<T> {
   protected:
-    bool valid_tensors(size_t count) const override {
-      return count == 2;
+    bool valid_tensors() const override {
+      return _tensors.size() == 2;
     }
 
   public:
@@ -108,8 +108,8 @@ class Relu : public Op<T> {
 template<typename T>
 class MatAdd: public Op<T> {
   protected:
-    bool valid_tensors(size_t count) const override {
-      return count == 3;
+    bool valid_tensors() const override {
+      return _tensors.size() == 3;
     }
   
   public:
@@ -138,8 +138,8 @@ class MatAdd: public Op<T> {
 template<typename T>
 class BiasAdd: public Op<T> {
   protected:
-    bool valid_tensors(size_t count) const override {
-      return count == 3;
+    bool valid_tensors() const override {
+      return _tensors.size() == 3;
     }
 
   public:
@@ -168,8 +168,8 @@ class BiasAdd: public Op<T> {
 template<typename T>
 class Gemm: public Op<T> {
   protected:
-    bool valid_tensors(size_t count) const override {
-      return count == 3;
+    bool valid_tensors() const override {
+      return _tensors.size() == 3;
     }
   
   public:

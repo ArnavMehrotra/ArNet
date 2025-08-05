@@ -34,7 +34,7 @@ extern "C" void forward_pass(float* X, float* W1, float* B1, float* W2, float* B
         new Gemm<float>({t_x, t_w1, t_h}),
         new BiasAdd<float>({t_h, t_b1, t_z}),
         new Relu<float>({t_z, t_z_relu}),
-        new Gemm<float>({t_h_relu, t_w2, t_r}),
+        new Gemm<float>({t_z_relu, t_w2, t_r}),
         new BiasAdd<float>({t_r, t_b2, t_y}),
         new Softmax<float> ({t_y, t_y_softmax}),
     };
