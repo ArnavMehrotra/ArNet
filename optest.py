@@ -155,7 +155,7 @@ def test_mlp(lib: ctypes.CDLL):
 
     # out = np.zeros((j, n), dtype=np.float32)
 
-    out = np.zeroes(j * m, dtype=np.float32)
+    out = np.zeros(j * m, dtype=np.float32)
 
     lib.forward_pass.argtypes = [
     ctypes.POINTER(ctypes.c_float),
