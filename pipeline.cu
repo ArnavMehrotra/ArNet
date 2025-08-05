@@ -24,9 +24,9 @@ extern "C" void forward_pass(float* X, float* W1, float* B1, float* W2, float* B
     Tensor<float>* t_z = new Tensor<float>({J, M});
     Tensor<float>* t_z_relu = new Tensor<float>({J, M});
 
-    // Tensor<float>* t_w2 = new Tensor<float>(W2, {M, N});
+    Tensor<float>* t_w2 = new Tensor<float>(W2, {M, N});
     // Tensor<float>* t_b2 = new Tensor<float>(B2, {N});
-    // Tensor<float>* t_r = new Tensor<float>({J, N});
+    Tensor<float>* t_r = new Tensor<float>({J, N});
     // Tensor<float>* t_y = new Tensor<float>({J, N});
     // Tensor<float>* t_y_softmax = new Tensor<float>({J, N});
     
@@ -34,7 +34,7 @@ extern "C" void forward_pass(float* X, float* W1, float* B1, float* W2, float* B
         new Gemm<float>({t_x, t_w1, t_h}),
         new BiasAdd<float>({t_h, t_b1, t_z}),
         new Relu<float>({t_z, t_z_relu}),
-        // new Gemm<float>({t_z_relu, t_w2, t_r}),
+        new Gemm<float>({t_z_relu, t_w2, t_r}),
         // new BiasAdd<float>({t_r, t_b2, t_y}),
         // new Softmax<float> ({t_y, t_y_softmax}),
     };
@@ -42,12 +42,12 @@ extern "C" void forward_pass(float* X, float* W1, float* B1, float* W2, float* B
     Net nn = Net(ops);
     nn.forward();
 
-    float *result = t_z_relu->to_host();
-    memcpy(out, result, J * M * sizeof(float));
+    float *result = t_r->to_host();
+    memcpy(out, result, J * N * sizeof(float));
     free(result);
 
     delete t_x; delete t_w1; delete t_b1; delete t_h; delete t_z;
-    delete t_z_relu;
+    delete t_z_relu; delete t_w2; delete t_r;
 
 
 
