@@ -24,20 +24,18 @@ void forward_pass(float* X, float* W1, float* B1, float* W2, float* B2, float* o
     Tensor<float>* t_h_relu = new Tensor<float>({J, M});
     Tensor<float>* t_y = new Tensor<float>({J, N});
     Tensor<float>* t_y_softmax = new Tensor<float>({J, N});
+    
+    std::vector<Op<float>*> ops = {
+        new Gemm<float>({t_x, t_w1, t_h}),
+        new BiasAdd<float>({t_h, t_b1}),
+        new Relu<float>({t_h, t_h_relu}),
+        new Gemm<float>({t_h_relu, t_w2, t_y}),
+        new BiasAdd<float>({t_y, t_b2}),
+        new Softmax<float> ({t_y, t_y_softmax}),
+    };
 
-    Gemm<float> gemm1({t_x, t_w1, t_h});
-    gemm1.forward();
-    BiasAdd<float> add1({t_h, t_b1});
-    add1.forward();
-    Relu<float> relu({t_h, t_h_relu});
-    relu.forward();
-
-    Gemm<float> gemm2({t_h_relu, t_w2, t_y});
-    gemm2.forward();
-    BiasAdd<float> add2({t_y, t_b2});
-    add2.forward();
-    Softmax<float> sm({t_y, t_y_softmax});
-    sm.forward();
+    Net nn = Net(ops);
+    nn.forward();
 
     float* result = t_y_softmax->to_host();
     memcpy(out, result, J * N * sizeof(float));
@@ -45,4 +43,8 @@ void forward_pass(float* X, float* W1, float* B1, float* W2, float* B2, float* o
 
     delete t_x; delete t_w1; delete t_b1; delete t_w2; delete t_b2;
     delete t_h; delete t_h_relu; delete t_y; delete t_y_softmax;
+
+    for (Op<float>* op : ops) {
+        delete op;
+    }
 }
