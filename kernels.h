@@ -27,3 +27,6 @@ __global__ void gradient(T *A, uint32_t *Y, T *B, int J, int K);
 
 template <typename T>
 __global__ void relu(T *A, T *B, int N);
+
+template <typename T>
+__global__ void relu_backward(T *A, T *B, T *C, int N);

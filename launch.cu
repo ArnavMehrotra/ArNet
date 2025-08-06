@@ -175,7 +175,7 @@ extern "C" void launchMult(float *A, float *B, float *C, int J, int K, int M, in
   cudaFree(d_C);
 }
 
-extern "C" void launchMult2(float *A, float *B, float *C, int J, int K, int M, int N) {
+extern "C" void launchMult2(float *A, float *B, float *C, int J, int K, int M, int N, bool backward) {
   Tensor<float> *t_A = new Tensor<float>(A, {J, K});
   Tensor<float> *t_B = new Tensor<float>(B, {M, N});
 
@@ -185,15 +185,21 @@ extern "C" void launchMult2(float *A, float *B, float *C, int J, int K, int M, i
   Gemm<float> op = Gemm<float>(tensors);
 
   op.forward();
-  op.backward();
-
-  float* result = t_A->grad_to_host();
-  memcpy(A, result, t_A->n_bytes());
-  free(result);
-
-  float* result1 = t_C->to_host();
+  float *result1 = t_C->to_host();
   memcpy(C, result1, t_C->n_bytes());
   free(result1);
+
+  if(backward) {
+    op.backward();
+    float *result = t_A->grad_to_host();
+    memcpy(A, result, t_A->n_bytes());
+    free(result);
+    
+    float *result2 = t_B->grad_to_host();
+    memcpy(B, result2, t_B->n_bytes());
+    free(result2);
+  }
+
 
   delete t_A;
   delete t_B;

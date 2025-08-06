@@ -92,6 +92,19 @@ class Relu : public Op<T> {
 
       cudaDeviceSynchronize();
     }
+
+    void backward() {
+      Tensor<T> *a = this->_tensors[0];
+      Tensor<T> *b = this->_tensors[1];
+
+      int N = a->n_elem();
+      dim3 blockDim(BLOCK_SIZE);
+      dim3 gridDim((N + BLOCK_SIZE - 1) / BLOCK_SIZE);
+
+      relu_backward<T> <<<gridDim, blockDim>>>(a->data(), b->grad(), a->grad(), N);
+
+      cudaDeviceSynchronize();
+    }
 };
 
 
@@ -105,19 +118,19 @@ class MatAdd: public Op<T> {
     }
 
     void forward() {
-        Tensor<T> *t_a = this->_tensors[0];
-        Tensor<T> *t_b = this->_tensors[1];
-        Tensor<T> *t_c = this->_tensors[2];
+        Tensor<T> *a = this->_tensors[0];
+        Tensor<T> *b = this->_tensors[1];
+        Tensor<T> *c = this->_tensors[2];
 
-        int J = t_a->shape()[0];
-        int K = t_a->shape()[1];
+        int J = a->shape()[0];
+        int K = a->shape()[1];
 
         int N = J * K;
 
         dim3 blockDim(BLOCK_SIZE);
         dim3 gridDim((N + BLOCK_SIZE - 1) / BLOCK_SIZE);
 
-        matAdd<float> <<<gridDim, blockDim>>>(t_a->data(), t_b->data(), t_c->data(), N);
+        matAdd<float> <<<gridDim, blockDim>>>(a->data(), b->data(), c->data(), N);
 
         cudaDeviceSynchronize();
 
@@ -192,10 +205,20 @@ class Gemm: public Op<T> {
       int N1 = b->shape()[1];
 
       dim3 blockDim(BLOCK_SIZE, BLOCK_SIZE);
-      dim3 gridDim((M1 + BLOCK_SIZE - 1) / BLOCK_SIZE,
+      dim3 aGridDim((M1 + BLOCK_SIZE - 1) / BLOCK_SIZE,
                   (J1 + BLOCK_SIZE - 1) / BLOCK_SIZE);
 
-      gemm2<false, true, T><<<gridDim, blockDim>>>(c->data(), b->data(), a->grad(), J1, K1, M1, N1);
+      gemm2<false, true, T><<<aGridDim, blockDim>>>(c->data(), b->data(), a->grad(), J1, K1, M1, N1);
+
+      int J2 = a->shape()[0];
+      int K2 = a->shape()[1];
+      int M2 = c->shape()[0];
+      int N2 = c->shape()[1];
+
+      dim3 bGridDim((N2 + BLOCK_SIZE - 1) / BLOCK_SIZE,
+                  (K2 + BLOCK_SIZE - 1) / BLOCK_SIZE);
+
+      gemm2<true, false, T><<<bGridDim, blockDim>>>(a->data(), c->data(), b->grad(), J2, K2, M2, N2);
 
       cudaDeviceSynchronize();
     }

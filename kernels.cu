@@ -252,6 +252,16 @@ __global__ void relu(T *A, T *B, int N) {
 
 }
 
+template <typename T>
+__global__ void relu_backward(T *A, T *B, T *C, int N) {
+  int t_x = blockIdx.x * blockDim.x + threadIdx.x;
+
+  if(t_x < N) {
+    C[t_x] = A[t_x] > 0 ? B[t_x] : 0;
+  }
+
+}
+
 
 template __global__ void matAdd<float>(float *A, float *B, float *C, int N);
 template __global__ void scalarAdd<float>(float *A, float *B, float S, int N);
@@ -261,6 +271,7 @@ template __global__ void gemm<int>(int *A, int *B, int *C, int J, int K, int M, 
 template __global__ void softmax<float>(float *A, float *B, int J, int K);
 template __global__ void gradient<float>(float *A, uint32_t *Y, float *B, int J, int K);
 template __global__ void relu<float>(float *A, float *B, int N);
+template __global__ void relu_backward<float>(float *A, float *B, float *C, int N);
 
 
 template __global__ void gemm2<true, true, float>(float *A, float *B, float *C, int J, int K, int M, int N);
