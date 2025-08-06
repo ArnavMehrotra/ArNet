@@ -35,6 +35,9 @@ class Tensor {
       _size = _n_elem * sizeof(T);
       cudaMalloc((void**)&_data, _size);
       cudaMemcpy(_data, data, _size, cudaMemcpyHostToDevice);
+
+      cudaMalloc((void**)&_grad, _size);
+      cudaMemset(_grad, 0, _size);
     }
 
     T* to_host() {
