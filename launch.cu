@@ -185,7 +185,7 @@ extern "C" void launchMult2(float *A, float *B, float *C, int J, int K, int M, i
   Gemm<float> op = Gemm<float>(tensors);
 
   op.forward();
-  // op.backward();
+  op.backward();
 
   float* result = t_A->grad_to_host();
   memcpy(A, result, t_A->n_bytes());
