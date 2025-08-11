@@ -30,7 +30,7 @@ __global__ void biasAdd(T* A, T* B, T* C, int J, int K) {
 
 }
 
-template <bool aTrans, bool bTrans, typename T>
+template <bool aT, bool bT, typename T>
 __global__ void gemm2(T *A, T *B, T *C, int J, int K, int M, int N) {
 
   int col = blockIdx.x * blockDim.x + threadIdx.x;
@@ -43,8 +43,8 @@ __global__ void gemm2(T *A, T *B, T *C, int J, int K, int M, int N) {
 
   for(int t = 0; t < (K + BLOCK_SIZE - 1) / BLOCK_SIZE; t++) {
     int aTile = (t * BLOCK_SIZE) + threadIdx.x;
-    int aRow = aTrans ? aTile : row;
-    int aCol = aTrans ? row : aTile;
+    int aRow = aT ? aTile : row;
+    int aCol = aT ? row : aTile;
 
     if(aRow < J && aCol < K){
       a[threadIdx.y][threadIdx.x] = A[(aRow * K) + aCol];
@@ -54,8 +54,8 @@ __global__ void gemm2(T *A, T *B, T *C, int J, int K, int M, int N) {
     }
 
     int bTile = (t * BLOCK_SIZE) + threadIdx.y;
-    int bRow = bTrans ? col : bTile;
-    int bCol = bTrans ? bTile : col;
+    int bRow = bT ? col : bTile;
+    int bCol = bT ? bTile : col;
 
     if(bRow < M && bCol < N) {
       b[threadIdx.y][threadIdx.x] = B[(bRow * N) + bCol];
@@ -74,8 +74,8 @@ __global__ void gemm2(T *A, T *B, T *C, int J, int K, int M, int N) {
     __syncthreads();
   }
 
-  int outRows = aTrans ? K : J;
-  int outCols = bTrans ? M : N;
+  int outRows = aT ? K : J;
+  int outCols = bT ? M : N;
   if(col < outCols && row < outRows) {
     C[row * outCols + col] = sum;
   }
