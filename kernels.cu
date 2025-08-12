@@ -45,7 +45,8 @@ __global__ void sumCols(T *A, T *B, int J, int K) {
   __syncthreads();
 
   if(threadIdx.x == 0) {
-    B[col] = s_data[0];
+    // B[col] = s_data[0];
+    B[col] = 100;
   }
 }
 
