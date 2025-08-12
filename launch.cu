@@ -104,14 +104,16 @@ extern "C" void launchRelu(float *A, float *B, int N) {
   std::vector<Tensor<float>*> tensors = {t_A, t_B};
 
   Relu<float> op = Relu<float>(tensors);
-
   op.forward();
+  op.backward();
 
   float* result = t_B->to_host();
-
   memcpy(B, result, t_B->n_bytes());
-
   free(result);
+
+  float *grad = t_A->grad_to_host();
+  memcpy(A, grad, t_A->n_bytes());
+  free(grad);
 
   delete t_A;
   delete t_B;

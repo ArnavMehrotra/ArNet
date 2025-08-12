@@ -74,6 +74,11 @@ class Tensor {
       return _n_elem;
     }
 
+    void zero_grad() {
+      cudaMemset(_grad, 0, _size);
+      cudaDeviceSynchronize();
+    }
+
     ~Tensor() {
       cudaFree(_data);
       cudaFree(_grad);
