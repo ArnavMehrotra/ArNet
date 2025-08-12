@@ -116,7 +116,7 @@ class Softmax : public Op<T> {
   private:
     Tensor<uint32_t> *_labels;
   public:
-    Softmax(std::vector<Tensor<T>*> tensors, const Tensor<uint32_t> *labels) : Op<T>(tensors) {
+    Softmax(std::vector<Tensor<T>*> tensors, Tensor<uint32_t> *labels = nullptr) : Op<T>(tensors) {
       if (tensors.size() != 2) {
         throw std::invalid_argument("Softmax requires exactly 2 tensors");
       }
@@ -148,6 +148,10 @@ class Softmax : public Op<T> {
 
       dim3 blockDim(BLOCK_SIZE);
       dim3 gridDim(J);
+
+      if(_labels == nullptr) {
+        throw std::runtime_error("Labels tensor is not set for softmax backward pass");
+      }
 
       gradient<T> <<<gridDim, blockDim>>>(a->data(), _labels->data(), a->grad(), J, K);
 
