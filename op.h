@@ -81,7 +81,7 @@ class Linear : public Op<T> {
 
       cudaDeviceSynchronize();
     }
-}
+};
 
 template<typename T>
 class Gradient : public Op<T> {
