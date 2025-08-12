@@ -114,7 +114,7 @@ extern "C" void launchRelu(float *A, float *B, int N) {
   delete t_B;
 }
 
-extern "C" void launchSumCols(float *A, float *B, float *C, int J, int K) {
+extern "C" void launchSumCols(float *A, float *B, int J, int K) {
   float *d_A, *d_B;
 
   size_t sz_a = J * K * sizeof(float);
