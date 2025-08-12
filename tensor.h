@@ -13,28 +13,19 @@ class Tensor {
     size_t _size;
 
   public:
-    Tensor(std::vector<int> shape) {
-      _shape = shape;
-      
-      _n_elem = 1;
-      for(int i : shape) _n_elem *= i;
-
-      _size = _n_elem * sizeof(T);
-      cudaMalloc((void**)&_data, _size);
-      cudaMemset(_data, 0, _size);
-
-      cudaMalloc((void**)&_grad, _size);
-      cudaMemset(_grad, 0, _size);
-    }
-
-    Tensor(T* data, std::vector<int> shape){
+    Tensor(std::vector<int> shape, T* data = nullptr){
       _shape = shape;
       
       _n_elem = 1;
       for(int i : shape) _n_elem *= i;
       _size = _n_elem * sizeof(T);
+
       cudaMalloc((void**)&_data, _size);
-      cudaMemcpy(_data, data, _size, cudaMemcpyHostToDevice);
+      if(data == nullptr) {
+        cudaMemset(_data, 0, _size);
+      } else {
+        cudaMemcpy(_data, data, _size, cudaMemcpyHostToDevice);
+      }
 
       cudaMalloc((void**)&_grad, _size);
       cudaMemset(_grad, 0, _size);

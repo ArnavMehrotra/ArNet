@@ -5,8 +5,8 @@
 #include "tensor.h"
 
 extern "C" void launchSoftmax(float *A, float *B, int J, int K) {
-  Tensor<float> *t_A = new Tensor<float>(A, {J, K});
-  Tensor<float> *t_B = new Tensor<float>(B, {J, K});
+  Tensor<float> *t_A = new Tensor<float>({J, K}, A);
+  Tensor<float> *t_B = new Tensor<float>({J, K}, B);
 
   std::vector<Tensor<float>*> tensors = {t_A, t_B};
 
@@ -52,9 +52,9 @@ extern "C" void launchGradient(float *A, uint32_t *Y, float *B, int J, int K) {
 }
 
 extern "C" void launchBiasAdd(float *A, float *B, float *C, int J, int K) {
-  Tensor<float> *t_A = new Tensor<float>(A, {J, K});
-  Tensor<float> *t_B = new Tensor<float>(B, {K});
-  Tensor<float> *t_C = new Tensor<float>(C, {J, K});
+  Tensor<float> *t_A = new Tensor<float>({J, K}, A);
+  Tensor<float> *t_B = new Tensor<float>({K}, B);
+  Tensor<float> *t_C = new Tensor<float>({J, K}, C);
 
   std::vector<Tensor<float>*> tensors = {t_A, t_B, t_C};
 
@@ -98,8 +98,8 @@ extern "C" void launchScalarAdd(float *A, float *B, float S, int N) {
 }
 
 extern "C" void launchRelu(float *A, float *B, int N) {
-  Tensor<float> *t_A = new Tensor<float>(A, {N});
-  Tensor<float> *t_B = new Tensor<float>(B, {N});
+  Tensor<float> *t_A = new Tensor<float>({N}, A);
+  Tensor<float> *t_B = new Tensor<float>({N}, B);
 
   std::vector<Tensor<float>*> tensors = {t_A, t_B};
 
@@ -197,10 +197,10 @@ extern "C" void launchMult(float *A, float *B, float *C, int J, int K, int M, in
 }
 
 extern "C" void launchMult2(float *A, float *B, float *C, int J, int K, int M, int N, bool backward) {
-  Tensor<float> *t_A = new Tensor<float>(A, {J, K});
-  Tensor<float> *t_B = new Tensor<float>(B, {M, N});
+  Tensor<float> *t_A = new Tensor<float>({J, K}, A);
+  Tensor<float> *t_B = new Tensor<float>({M, N}, B);
 
-  Tensor<float> *t_C = new Tensor<float>(C, {J, N});
+  Tensor<float> *t_C = new Tensor<float>({J, N}, C);
   std::vector<Tensor<float>*> tensors = {t_A, t_B, t_C};
 
   Gemm<float> op = Gemm<float>(tensors);
@@ -228,9 +228,9 @@ extern "C" void launchMult2(float *A, float *B, float *C, int J, int K, int M, i
 }
 
 extern "C" void launchAdd(float* a, float* b, float* c, int J, int K) {
-  Tensor<float> *t_a = new Tensor<float>(a, {J, K});
-  Tensor<float> *t_b = new Tensor<float>(b, {J, K});
-  Tensor<float> *t_c = new Tensor<float>(c, {J, K});
+  Tensor<float> *t_a = new Tensor<float>({J, K}, a);
+  Tensor<float> *t_b = new Tensor<float>({J, K}, b);
+  Tensor<float> *t_c = new Tensor<float>({J, K}, c);
 
   std::vector<Tensor<float>*> tensors = {t_a, t_b, t_c};
 
