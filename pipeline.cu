@@ -35,8 +35,12 @@ extern "C" void test_layers(float* X, float* W1, float* B1, float* W2, float* B2
 
     Net nn = Net(ops);
     nn.forward();
+    
+    // float *result = t_z->to_host();
+    // memcpy(out, result, J * M * sizeof(float));
+    // free(result);
+
     float *result = t_y_softmax->to_host();
-    result = (float*) malloc(J * N * sizeof(float));
     memcpy(out, result, J * N * sizeof(float));
     free(result);
 
