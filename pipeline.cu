@@ -12,6 +12,43 @@
 //     ops.push_back(new Gemm<T>({&input_tensor, &label_tensor, }));
 // }
 
+extern "C" void test_layers(float* X, float* W1, float* B1, float* W2, float* B2, float* out,
+    int J, int K, int M, int N) {
+    
+    Tensor<float> *t_x = new Tensor<float>(X, {J, K});
+    Tensor<float> *t_w1 = new Tensor<float>(W1, {K, M});
+    Tensor<float> *t_b1 = new Tensor<float>(B1, {M});
+    Tensor<float> *t_z = new Tensor<float>({J, M});
+    Tensor<float> *t_z_relu = new Tensor<float>({J, M});
+
+    Tensor<float> *t_w2 = new Tensor<float>(W2, {M, N});
+    Tensor<float> *t_b2 = new Tensor<float>(B2, {N});
+    Tensor<float> *t_y = new Tensor<float>({J, N});
+    Tensor<float> *t_y_softmax = new Tensor<float>({J, N});
+    
+    std::vector<Op<float>*> ops = {
+        new Linear<float>({t_x, t_w1, t_b1, t_z}),
+        new Relu<float> ({t_z, t_z_relu}),
+        new Linear<float>({t_z_relu, t_w2, t_b2, t_y}),
+        new Softmax<float> ({t_y, t_y_softmax})
+    };
+
+    Net nn = Net(ops);
+    nn.forward();
+    float *result = t_y_softmax->to_host();
+    result = (float*) malloc(J * N * sizeof(float));
+    memcpy(out, result, J * N * sizeof(float));
+    free(result);
+
+    for (Op<float>* op : ops) {
+        delete op;
+    }
+
+    delete t_x; delete t_w1; delete t_b1; delete t_z; delete t_z_relu;
+    delete t_w2; delete t_b2; delete t_y; delete t_y_softmax;
+
+
+}
 
 extern "C" void forward_pass(float* X, float* W1, float* B1, float* W2, float* B2, float* out,
     int J, int K, int M, int N) {

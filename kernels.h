@@ -18,6 +18,11 @@ __global__ void gemm(T *A, T *B, T *C, int J, int K, int M, int N);
 template <bool aTrans, bool bTrans, typename T>
 __global__ void gemm2(T *A, T *B, T *C, int J, int K, int M, int N);
 
+template <typename T>
+__global__ void sumCols(T *A, T *B, int J, int K);
+
+template <typename T>
+__global__ void linear(T *A, T *B, T *C, T *D, int J, int K, int M, int N);
 
 template <typename T>
 __global__ void softmax(T *A, T *B, int J, int K);

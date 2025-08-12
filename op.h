@@ -18,6 +18,73 @@ class Op {
 };
 
 template<typename T>
+class Linear : public Op<T> {
+  public:
+    Linear(std::vector<Tensor<T>*> tensors) : Op<T>(tensors) {
+      if (tensors.size() != 4) {
+        throw std::invalid_argument("Linear requires exactly 3 tensors");
+      }
+    }
+    
+    /*
+      y = wx + b
+    */
+    void forward() {
+      Tensor<T> *x = this->_tensors[0];
+      Tensor<T> *w = this->_tensors[1];
+      Tensor<T> *b = this->_tensors[2];
+      Tensor<T> *y = this->_tensors[3];
+
+      int J = x->shape()[0];
+      int K = x->shape()[1];
+      int M = w->shape()[0];
+      int N = w->shape()[1];
+
+      dim3 blockDim(BLOCK_SIZE, BLOCK_SIZE);
+      dim3 gridDim((N + BLOCK_SIZE - 1) / BLOCK_SIZE,
+                  (J + BLOCK_SIZE - 1) / BLOCK_SIZE);
+
+      linear<T><<<gridDim, blockDim>>>(x->data(), w->data(), b->data(), y->data(), J, K, M, N);
+      
+      cudaDeviceSynchronize();
+    }
+
+    void backward() {
+      Tensor<T> *x = this->_tensors[0];
+      Tensor<T> *w = this->_tensors[1];
+      Tensor<T> *b = this->_tensors[2];
+      Tensor<T> *y = this->_tensors[3];
+
+      int J = y->shape()[0];
+      int K = y->shape()[1];
+      int M1 = x->shape()[0];
+      int N1 = x->shape()[1];
+
+      dim3 blockDim(BLOCK_SIZE, BLOCK_SIZE);
+      dim3 aGridDim((M1 + BLOCK_SIZE - 1) / BLOCK_SIZE,
+                  (J1 + BLOCK_SIZE - 1) / BLOCK_SIZE);
+
+      gemm2<true, false, T><<<aGridDim, blockDim>>>(y->grad(), x->data(), w->grad(), J, K, M1, N1);
+
+      int M2 = w->shape()[0];
+      int N2 = w->shape()[1];
+
+      dim3 bGridDim((N2 + BLOCK_SIZE - 1) / BLOCK_SIZE,
+                  (K2 + BLOCK_SIZE - 1) / BLOCK_SIZE);
+
+      gemm2<false, true, T><<<bGridDim, blockDim>>>(y->grad(), w->data(), b->grad(), J, K, M2, N2);
+
+      dim3 sumGridDim((K + BLOCK_SIZE - 1) / BLOCK_SIZE);
+      dim3 sumBlockDim(BLOCK_SIZE);
+      
+      sumCols<T><<<sumGridDim, sumBlockDim>>(y->data(), b->grad(), J, K);
+
+
+      cudaDeviceSynchronize();
+    }
+}
+
+template<typename T>
 class Gradient : public Op<T> {
   public:
     Gradient(std::vector<Tensor<T>*> tensors) : Op<T>(tensors) {
