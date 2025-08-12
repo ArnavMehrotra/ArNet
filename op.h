@@ -61,24 +61,23 @@ class Linear : public Op<T> {
       int N1 = x->shape()[1];
 
       dim3 blockDim(BLOCK_SIZE, BLOCK_SIZE);
-      dim3 aGridDim((M1 + BLOCK_SIZE - 1) / BLOCK_SIZE,
-                  (J1 + BLOCK_SIZE - 1) / BLOCK_SIZE);
+      dim3 aGridDim((N1 + BLOCK_SIZE - 1) / BLOCK_SIZE,
+                  (K + BLOCK_SIZE - 1) / BLOCK_SIZE);
 
       gemm2<true, false, T><<<aGridDim, blockDim>>>(y->grad(), x->data(), w->grad(), J, K, M1, N1);
 
       int M2 = w->shape()[0];
       int N2 = w->shape()[1];
 
-      dim3 bGridDim((N2 + BLOCK_SIZE - 1) / BLOCK_SIZE,
-                  (K2 + BLOCK_SIZE - 1) / BLOCK_SIZE);
+      dim3 bGridDim((M2 + BLOCK_SIZE - 1) / BLOCK_SIZE,
+                  (J + BLOCK_SIZE - 1) / BLOCK_SIZE);
 
       gemm2<false, true, T><<<bGridDim, blockDim>>>(y->grad(), w->data(), b->grad(), J, K, M2, N2);
 
       dim3 sumGridDim((K + BLOCK_SIZE - 1) / BLOCK_SIZE);
       dim3 sumBlockDim(BLOCK_SIZE);
       
-      sumCols<T><<<sumGridDim, sumBlockDim>>(y->data(), b->grad(), J, K);
-
+      sumCols<T><<<sumGridDim, sumBlockDim>>>(y->data(), b->grad(), J, K);
 
       cudaDeviceSynchronize();
     }
