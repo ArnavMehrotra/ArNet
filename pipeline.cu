@@ -30,7 +30,7 @@ extern "C" void test_layers(float* X, float* W1, float* B1, float* W2, float* B2
         new Linear<float>({t_x, t_w1, t_b1, t_z}),
         new Relu<float> ({t_z, t_z_relu}),
         new Linear<float>({t_z_relu, t_w2, t_b2, t_y}),
-        new Softmax<float> ({t_y, t_y_softmax}, new Tensor<uint32_t>(labels, {J}))
+        new Softmax<float> ({t_y, t_y_softmax}, new Tensor<uint32_t>({J}, labels))
     };
 
     Net nn = Net(ops);

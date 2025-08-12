@@ -73,7 +73,7 @@ class Linear : public Op<T> {
       dim3 bGridDim((M2 + BLOCK_SIZE - 1) / BLOCK_SIZE,
                   (J + BLOCK_SIZE - 1) / BLOCK_SIZE);
 
-      gemm2<false, true, T><<<bGridDim, blockDim>>>(y->grad(), w->data(), b->grad(), J, K, M2, N2);
+      gemm2<false, true, T><<<bGridDim, blockDim>>>(y->grad(), w->data(), x->grad(), J, K, M2, N2);
 
       dim3 sumGridDim((K + BLOCK_SIZE - 1) / BLOCK_SIZE);
       dim3 sumBlockDim(BLOCK_SIZE);
