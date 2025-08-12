@@ -37,7 +37,7 @@ extern "C" void test_layers(float* X, float* W1, float* B1, float* W2, float* B2
     nn.forward(); 
     nn.backward();
 
-    float *result = t_y_softmax->to_host();
+    float *result = t_y->grad_to_host();
     memcpy(out, result, J * N * sizeof(float));
     free(result);
 
