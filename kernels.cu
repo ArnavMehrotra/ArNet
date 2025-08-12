@@ -165,8 +165,8 @@ __global__ void gemm(T *A, T *B, T *C, int J, int K, int M, int N) {
   int col = blockIdx.x * blockDim.x + threadIdx.x;
   int row = blockIdx.y * blockDim.y + threadIdx.y;
 
-  extern __shared__ T a[BLOCK_SIZE][BLOCK_SIZE];
-  extern __shared__ T b[BLOCK_SIZE][BLOCK_SIZE];
+  __shared__ T a[BLOCK_SIZE][BLOCK_SIZE];
+  __shared__ T b[BLOCK_SIZE][BLOCK_SIZE];
 
   T sum = 0;
 
