@@ -17,4 +17,9 @@ class Net {
                 op->forward();
             }
         }
+        void backward() {
+            for (auto it = _ops.rbegin(); it != _ops.rend(); ++it) {
+                (*it)->backward();
+            }
+        }
 };

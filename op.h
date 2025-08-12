@@ -15,6 +15,7 @@ class Op {
     }
 
     virtual void forward() = 0;
+    virtual void backward() {}
 };
 
 template<typename T>
@@ -22,7 +23,7 @@ class Linear : public Op<T> {
   public:
     Linear(std::vector<Tensor<T>*> tensors) : Op<T>(tensors) {
       if (tensors.size() != 4) {
-        throw std::invalid_argument("Linear requires exactly 3 tensors");
+        throw std::invalid_argument("Linear requires exactly 4 tensors");
       }
     }
     
@@ -112,11 +113,15 @@ class Gradient : public Op<T> {
 
 template<typename T>
 class Softmax : public Op<T> {
+  private:
+    Tensor<uint32_t> *_labels;
   public:
-    Softmax(std::vector<Tensor<T>*> tensors) : Op<T>(tensors) {
+    Softmax(std::vector<Tensor<T>*> tensors, const Tensor<uint32_t> *labels) : Op<T>(tensors) {
       if (tensors.size() != 2) {
         throw std::invalid_argument("Softmax requires exactly 2 tensors");
       }
+
+      _labels = labels;
     }
 
     void forward() {
@@ -133,6 +138,20 @@ class Softmax : public Op<T> {
 
       cudaDeviceSynchronize();
 
+    }
+
+    void backward() {
+      Tensor<T> *a = this->_tensors[0];
+
+      int J = a->shape()[0];
+      int K = a->shape()[1];
+
+      dim3 blockDim(BLOCK_SIZE);
+      dim3 gridDim(J);
+
+      gradient<T> <<<gridDim, blockDim>>>(a->data(), _labels->data(), a->grad(), J, K);
+
+      cudaDeviceSynchronize();
     }
     
 };

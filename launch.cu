@@ -114,6 +114,30 @@ extern "C" void launchRelu(float *A, float *B, int N) {
   delete t_B;
 }
 
+extern "C" void launchSumCols(float *A, float *B, float *C, int J, int K) {
+  float *d_A, *d_B;
+
+  size_t sz_a = J * K * sizeof(float);
+  size_t sz_b = K * sizeof(float);
+
+  cudaMalloc((void**)&d_A, sz_a);
+  cudaMalloc((void**)&d_B, sz_b);
+
+  cudaMemcpy(d_A, A, sz_a, cudaMemcpyHostToDevice);
+  cudaMemcpy(d_B, B, sz_b, cudaMemcpyHostToDevice);
+
+  dim3 blockDim(BLOCK_SIZE);
+  dim3 gridDim(K);
+
+  sumCols<float> <<<gridDim, blockDim>>>(d_A, d_B, J, K);
+
+  cudaMemcpy(B, d_B, sz_b, cudaMemcpyDeviceToHost);
+  cudaDeviceSynchronize();
+
+  cudaFree(d_A);
+  cudaFree(d_B);
+}
+
 extern "C" void launchMultInt(int *A, int *B, int *C, int J, int K, int M, int N) {
 
   int *d_A, *d_B, *d_C;
