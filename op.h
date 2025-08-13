@@ -14,6 +14,12 @@ class Op {
       _tensors = tensors;
     }
 
+    void zero_grad() {
+      for (Tensor<T>* tensor : _tensors) {
+        tensor->zero_grad();
+      }
+    }
+
     void update(T lr) {
       for (Tensor<T>* tensor : _tensors) {
         if (tensor->weight_decay()) {
