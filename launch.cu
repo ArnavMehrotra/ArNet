@@ -215,7 +215,7 @@ extern "C" void launchTranspose(float *A, float *B, float *C, int J, int K, int 
   dim3 gridDim((M + BLOCK_SIZE - 1) / BLOCK_SIZE,
               (J + BLOCK_SIZE - 1) / BLOCK_SIZE);
 
-  gemm2<false, true, float><<<gridDim1, blockDim1>>>(d_A, d_B, d_C, J, K, M, N);
+  gemm2<false, true, float><<<gridDim, blockDim>>>(d_A, d_B, d_C, J, K, M, N);
 
 
   cudaMemcpy(C, d_C, sz_c, cudaMemcpyDeviceToHost);
