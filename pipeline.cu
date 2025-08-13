@@ -4,7 +4,7 @@
 
 
 extern "C" void test_layers(float* X, float* W1, float* B1, float* W2, float* B2, uint32_t* labels, float* out,
-    int J, int K, int M, int N, float lr) {
+    int J, int K, int M, int N, float lr, int epochs) {
     
     Tensor<float> *t_x = new Tensor<float>({J, K}, X);
     Tensor<float> *t_w1 = new Tensor<float>({K, M}, W1, true);
@@ -27,7 +27,7 @@ extern "C" void test_layers(float* X, float* W1, float* B1, float* W2, float* B2
     Net nn = Net(ops);
 
     //"training loop"
-    for(int i = 0; i < 2; i ++) {
+    for(int i = 0; i < epochs; i ++) {
         nn.forward(); 
         nn.backward();
         nn.update(lr);
