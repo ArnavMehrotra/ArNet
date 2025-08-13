@@ -14,6 +14,22 @@ class Op {
       _tensors = tensors;
     }
 
+    void update(T lr) {
+      for (Tensor<T>* tensor : _tensors) {
+        if (tensor->weight_decay()) {
+          T* data = tensor->data();
+          T* grad = tensor->grad();
+          int n_elem = tensor->n_elem();
+          
+          dim3 blockDim(BLOCK_SIZE);
+          dim3 gridDim((n_elem + BLOCK_SIZE - 1) / BLOCK_SIZE);
+          sgd<T><<<gridDim, blockDim>>>(data, grad, lr, n_elem);
+          
+          cudaDeviceSynchronize();
+        }
+      }
+    }
+
     virtual void forward() = 0;
     virtual void backward() {}
 };

@@ -1,6 +1,15 @@
 #include "kernels.h"
 
 template <typename T>
+__global__ void sgd(T *A, T *B, T lr, int N) {
+  int t_x = blockIdx.x * blockDim.x + threadIdx.x;
+
+  if(t_x < N) {
+    A[t_x] -= lr * B[t_x];
+  }
+}
+
+template <typename T>
 __global__ void matAdd(T *A, T *B, T *C, int N) {
   int t_x = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -351,6 +360,7 @@ template __global__ void relu<float>(float *A, float *B, int N);
 template __global__ void relu_backward<float>(float *A, float *B, float *C, int N);
 template __global__ void linear(float *A, float *B, float *C, float *D, int J, int K, int M, int N);
 template __global__ void sumCols(float *A, float *B, int J, int K);
+template __global__ void sgd<float>(float *A, float *B, float lr, int N);
 
 
 template __global__ void gemm2<true, true, float>(float *A, float *B, float *C, int J, int K, int M, int N);

@@ -4,6 +4,9 @@
 inline constexpr int BLOCK_SIZE = 16;
 
 template <typename T>
+__global__ void sgd(T *A, T *B, T lr, int N);
+
+template <typename T>
 __global__ void matAdd(T *A, T *B, T *C, int N);
 
 template <typename T>
