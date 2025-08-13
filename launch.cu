@@ -201,7 +201,7 @@ extern "C" void launchTranspose(float *A, float *B, float *C, int J, int K, int 
 
   size_t sz_a = J * K * sizeof(float);
   size_t sz_b = M * N * sizeof(float);
-  size_t sz_c = K * N * sizeof(float);
+  size_t sz_c = J * M * sizeof(float);
 
   cudaMalloc((void**)&d_A, sz_a);
   cudaMalloc((void**)&d_B, sz_b);
