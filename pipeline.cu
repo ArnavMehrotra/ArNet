@@ -27,9 +27,12 @@ extern "C" void test_layers(float* X, float* W1, float* B1, float* W2, float* B2
     Net nn = Net(ops);
 
     //"training loop"
-    nn.forward(); 
-    nn.backward();
-    nn.update(lr);
+    for(int i = 0; i < 2; i ++) {
+        nn.forward(); 
+        nn.backward();
+        nn.update(lr);
+        nn.zero_grad();
+    }
 
 
     float *result = t_y->grad_to_host();
@@ -52,7 +55,6 @@ extern "C" void test_layers(float* X, float* W1, float* B1, float* W2, float* B2
     memcpy(B1, db1, M * sizeof(float));
     free(db1);
 
-    nn.zero_grad();
 
     for (Op<float> *op : ops) {
         delete op;
