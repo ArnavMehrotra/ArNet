@@ -55,30 +55,30 @@ class Linear : public Op<T> {
       Tensor<T> *w = this->_tensors[1];
       Tensor<T> *b = this->_tensors[2];
       Tensor<T> *y = this->_tensors[3];
-
-      int J = y->shape()[0];
-      int K = y->shape()[1];
-      int M1 = x->shape()[0];
-      int N1 = x->shape()[1];
+      
+      int J1 = x->shape()[0];
+      int K1 = x->shape()[1];
+      int M1 = y->shape()[0];
+      int N1 = y->shape()[1];
 
       dim3 blockDim(BLOCK_SIZE, BLOCK_SIZE);
       dim3 aGridDim((N1 + BLOCK_SIZE - 1) / BLOCK_SIZE,
-                  (K + BLOCK_SIZE - 1) / BLOCK_SIZE);
+                  (K1 + BLOCK_SIZE - 1) / BLOCK_SIZE);
 
-      gemm2<true, false, T><<<aGridDim, blockDim>>>(y->grad(), x->data(), w->grad(), J, K, M1, N1);
+      gemm2<true, false, T><<<aGridDim, blockDim>>>(x->data(), y->grad(), w->grad(), J1, K1, M1, N1);
 
-      int M2 = w->shape()[0];
-      int N2 = w->shape()[1];
+      // int M2 = w->shape()[0];
+      // int N2 = w->shape()[1];
 
-      dim3 bGridDim((M2 + BLOCK_SIZE - 1) / BLOCK_SIZE,
-                  (J + BLOCK_SIZE - 1) / BLOCK_SIZE);
+      // dim3 bGridDim((M2 + BLOCK_SIZE - 1) / BLOCK_SIZE,
+      //             (J + BLOCK_SIZE - 1) / BLOCK_SIZE);
 
-      gemm2<false, true, T><<<bGridDim, blockDim>>>(y->grad(), w->data(), x->grad(), J, K, M2, N2);
+      // gemm2<false, true, T><<<bGridDim, blockDim>>>(y->grad(), w->data(), x->grad(), J, K, M2, N2);
 
       dim3 sumGridDim((K + BLOCK_SIZE - 1) / BLOCK_SIZE);
       dim3 sumBlockDim(BLOCK_SIZE);
       
-      sumCols<T><<<sumGridDim, sumBlockDim>>>(y->data(), b->grad(), J, K);
+      sumCols<T><<<sumGridDim, sumBlockDim>>>(y->grad(), b->grad(), M1, N1);
 
       cudaDeviceSynchronize();
     }
