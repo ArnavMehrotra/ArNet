@@ -20,6 +20,19 @@ class Op {
 
 template<typename T>
 class Linear : public Op<T> {
+  private:
+    void matMul(float *A, float *B, float *C, int J, int K, int M, int N, bool aT, bool bT) {
+      int gridX = bT ? M : N;
+      int gridY = aT ? K : J;
+
+      dim3 blockDim(BLOCK_SIZE, BLOCK_SIZE);
+      dim3 gridDim((gridX + BLOCK_SIZE - 1) / BLOCK_SIZE,
+                  (gridY + BLOCK_SIZE - 1) / BLOCK_SIZE);
+
+      gemm2<aT, bT, T><<<gridDim, blockDim>>>(A, B, C, J, K, M, N);
+      cudaDeviceSynchronize();
+    }
+
   public:
     Linear(std::vector<Tensor<T>*> tensors) : Op<T>(tensors) {
       if (tensors.size() != 4) {
@@ -56,29 +69,15 @@ class Linear : public Op<T> {
       Tensor<T> *b = this->_tensors[2];
       Tensor<T> *y = this->_tensors[3];
       
-      int J1 = x->shape()[0];
-      int K1 = x->shape()[1];
-      int M1 = y->shape()[0];
-      int N1 = y->shape()[1];
+      matMul(x->data(), y->grad(), w->grad(), x->shape()[0], x->shape()[1], y->shape()[0], y->shape()[1], true, false);
+      matMul(y->grad(), w->data(), x->grad(), y->shape()[0], y->shape()[1], w->shape()[0], w->shape()[1], false, true);
 
-      dim3 blockDim(BLOCK_SIZE, BLOCK_SIZE);
-      dim3 aGridDim((N1 + BLOCK_SIZE - 1) / BLOCK_SIZE,
-                  (K1 + BLOCK_SIZE - 1) / BLOCK_SIZE);
-
-      gemm2<true, false, T><<<aGridDim, blockDim>>>(x->data(), y->grad(), w->grad(), J1, K1, M1, N1);
-
-      // int M2 = w->shape()[0];
-      // int N2 = w->shape()[1];
-
-      // dim3 bGridDim((M2 + BLOCK_SIZE - 1) / BLOCK_SIZE,
-      //             (J + BLOCK_SIZE - 1) / BLOCK_SIZE);
-
-      // gemm2<false, true, T><<<bGridDim, blockDim>>>(y->grad(), w->data(), x->grad(), J, K, M2, N2);
-
-      dim3 sumGridDim((N1 + BLOCK_SIZE - 1) / BLOCK_SIZE);
+      int M = y->shape()[0];
+      int N = y->shape()[1];
+      dim3 sumGridDim((N + BLOCK_SIZE - 1) / BLOCK_SIZE);
       dim3 sumBlockDim(BLOCK_SIZE);
       
-      sumCols<T><<<sumGridDim, sumBlockDim>>>(y->grad(), b->grad(), M1, N1);
+      sumCols<T><<<sumGridDim, sumBlockDim>>>(y->grad(), b->grad(), M, N);
 
       cudaDeviceSynchronize();
     }
