@@ -196,6 +196,37 @@ extern "C" void launchMult(float *A, float *B, float *C, int J, int K, int M, in
   cudaFree(d_C);
 }
 
+extern "C" void launchTranspose2(float *A, float *B, float *C, int J, int K, int M, int N) {
+  float *d_A, *d_B, *d_C;
+
+  size_t sz_a = J * K * sizeof(float);
+  size_t sz_b = M * N * sizeof(float);
+  size_t sz_c = K * N * sizeof(float);
+
+  cudaMalloc((void**)&d_A, sz_a);
+  cudaMalloc((void**)&d_B, sz_b);
+  cudaMalloc((void**)&d_C, sz_c);
+
+  cudaMemcpy(d_A, A, sz_a, cudaMemcpyHostToDevice);
+  cudaMemcpy(d_B, B, sz_b, cudaMemcpyHostToDevice);
+  cudaMemcpy(d_C, C, sz_c, cudaMemcpyHostToDevice);
+
+  dim3 blockDim(BLOCK_SIZE, BLOCK_SIZE);
+  dim3 gridDim((N + BLOCK_SIZE - 1) / BLOCK_SIZE,
+              (K + BLOCK_SIZE - 1) / BLOCK_SIZE);
+
+  gemm2<true, false, float><<<gridDim, blockDim>>>(d_A, d_B, d_C, J, K, M, N);
+
+
+  cudaMemcpy(C, d_C, sz_c, cudaMemcpyDeviceToHost);
+
+  cudaDeviceSynchronize();
+
+  cudaFree(d_A);
+  cudaFree(d_B);
+  cudaFree(d_C);
+}
+
 extern "C" void launchTranspose(float *A, float *B, float *C, int J, int K, int M, int N) {
   float *d_A, *d_B, *d_C;
 
