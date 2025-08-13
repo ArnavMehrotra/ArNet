@@ -2,15 +2,6 @@
 #include "op.h"
 #include "tensor.h"
 
-// template<typename T>
-// void classify_nn_forward(T* data, std::vector<int> shape, uint32_t* labels, int num_classes) {
-//     Tensor<T> input_tensor(data, shape);
-//     Tensor<uint32_t> label_tensor(labels, {shape[0]});
-//     new Tensor<T>(nullptr, {shape[0], num_classes});
-
-//     std::vector<Ops<T>*> ops;
-//     ops.push_back(new Gemm<T>({&input_tensor, &label_tensor, }));
-// }
 
 extern "C" void test_layers(float* X, float* W1, float* B1, float* W2, float* B2, uint32_t* labels, float* out,
     int J, int K, int M, int N) {
