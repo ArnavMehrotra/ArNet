@@ -37,9 +37,18 @@ extern "C" void test_layers(float* X, float* W1, float* B1, float* W2, float* B2
     nn.forward(); 
     nn.backward();
 
+
     float *result = t_y->grad_to_host();
     memcpy(out, result, J * N * sizeof(float));
     free(result);
+
+    float* dW2 = t_w2->grad_to_host();
+    memcpy(W2, dW2, M * N * sizeof(float));
+    free(dW2);
+
+    float *db2 = t_b2->grad_to_host();
+    memcpy(B2, db2, N * sizeof(float));
+    free(db2);
 
     for (Op<float>* op : ops) {
         delete op;
