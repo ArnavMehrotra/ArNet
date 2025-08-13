@@ -75,7 +75,7 @@ class Linear : public Op<T> {
 
       // gemm2<false, true, T><<<bGridDim, blockDim>>>(y->grad(), w->data(), x->grad(), J, K, M2, N2);
 
-      dim3 sumGridDim((K + BLOCK_SIZE - 1) / BLOCK_SIZE);
+      dim3 sumGridDim((N1 + BLOCK_SIZE - 1) / BLOCK_SIZE);
       dim3 sumBlockDim(BLOCK_SIZE);
       
       sumCols<T><<<sumGridDim, sumBlockDim>>>(y->grad(), b->grad(), M1, N1);
