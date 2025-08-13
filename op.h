@@ -193,7 +193,7 @@ class Relu : public Op<T> {
       dim3 gridDim((N + BLOCK_SIZE - 1) / BLOCK_SIZE);
       
       // USE b->grad() FOR BACKWARD PASS
-      relu_backward<T> <<<gridDim, blockDim>>>(a->data(), b->data(), a->grad(), N);
+      relu_backward<T> <<<gridDim, blockDim>>>(a->data(), b->grad(), a->grad(), N);
 
       cudaDeviceSynchronize();
     }
