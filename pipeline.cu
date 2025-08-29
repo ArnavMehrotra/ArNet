@@ -21,7 +21,7 @@ extern "C" void test_layers(float* X, float* W1, float* B1, float* W2, float* B2
         new Linear<float>({t_x, t_w1, t_b1, t_z}),
         new Relu<float> ({t_z, t_z_relu}),
         new Linear<float>({t_z_relu, t_w2, t_b2, t_y}),
-        new Softmax<float> ({t_y, t_y_softmax}, new Tensor<uint32_t>({J}, labels))
+        new Softmax<float> ({t_y, t_y_softmax}, labels)
     };
 
     Net nn = Net(ops);
@@ -59,8 +59,27 @@ extern "C" void test_layers(float* X, float* W1, float* B1, float* W2, float* B2
     for (Op<float> *op : ops) {
         delete op;
     }
+    ops.clear();
 
     delete t_x; delete t_w1; delete t_b1; delete t_z; delete t_z_relu;
     delete t_w2; delete t_b2; delete t_y; delete t_y_softmax;
+}
 
+
+extern "C" void big_test(float *X, int n, int in_dim, int out_dim, int hidden_dim, int hidden_layers, 
+    uint32_t *labels, float *out, float lr, int epochs) {
+    
+    Net<float> nn = Net<float>(n, in_dim, out_dim, hidden_dim, hidden_layers);
+
+    //"training loop"
+    for(int i = 0; i < epochs; i ++) {
+        nn.forward(X, labels, n, in_dim); 
+        nn.backward();
+        nn.update(lr);
+        nn.zero_grad();
+    }
+
+    float *result = nn.get_output()->to_host();
+    memcpy(out, result, n * out_dim * sizeof(float));
+    free(result);
 }

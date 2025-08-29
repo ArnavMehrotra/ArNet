@@ -14,7 +14,7 @@ class Tensor {
     bool _weight_decay;
 
   public:
-    Tensor(std::vector<int> shape, T* data = nullptr, bool weight_decay = false){
+    Tensor(std::vector<int> shape, T* data, bool weight_decay = false) {
       _shape = shape;
       
       _n_elem = 1;
@@ -30,6 +30,28 @@ class Tensor {
 
       cudaMalloc((void**)&_grad, _size);
       cudaMemset(_grad, 0, _size);
+
+      _weight_decay = weight_decay;
+    }
+    Tensor(std::vector<int> shape, bool weight_decay = false, bool random_init = false) {
+      _shape = shape;
+      
+      _n_elem = 1;
+      for(int i : shape) _n_elem *= i;
+      _size = _n_elem * sizeof(T);
+
+      cudaMalloc((void**)&_data, _size);
+
+      cudaMalloc((void**)&_grad, _size);
+      cudaMemset(_grad, 0, _size);
+
+      if(random_init) {
+        //TODO: He initialization
+        //placeholder code
+        cudaMemset(_data, 0.01f, _size);
+      } else {
+        cudaMemset(_data, 0, _size);
+      }
 
       _weight_decay = weight_decay;
     }
@@ -74,6 +96,11 @@ class Tensor {
 
     void zero_grad() {
       cudaMemset(_grad, 0, _size);
+      cudaDeviceSynchronize();
+    }
+
+    void set_data(T* data) {
+      cudaMemcpy(_data, data, _size, cudaMemcpyHostToDevice);
       cudaDeviceSynchronize();
     }
 

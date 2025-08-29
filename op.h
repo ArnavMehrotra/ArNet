@@ -20,6 +20,10 @@ class Op {
       }
     }
 
+    std::vector<Tensor<T>*> tensors() const {
+      return _tensors;
+    }
+
     void update(T lr) {
       for (Tensor<T>* tensor : _tensors) {
         if (tensor->weight_decay()) {
@@ -140,12 +144,20 @@ class Softmax : public Op<T> {
   private:
     Tensor<uint32_t> *_labels;
   public:
-    Softmax(std::vector<Tensor<T>*> tensors, Tensor<uint32_t> *labels = nullptr) : Op<T>(tensors) {
+    Softmax(std::vector<Tensor<T>*> tensors, uint32_t *labels = nullptr) : Op<T>(tensors) {
       if (tensors.size() != 2) {
         throw std::invalid_argument("Softmax requires exactly 2 tensors");
       }
 
-      _labels = labels;
+      int n = _tensors->back()->shape[0];
+      _labels = new Tensor<uint32_t>({n});
+      if(labels != nullptr) {
+        cudaMemcpy(_labels->data(), labels, n * sizeof(uint32_t), cudaMemcpyHostToDevice);
+        cudaDeviceSynchronize();
+      }
+      else {
+        _labels = nullptr;
+      }
     }
 
     void forward() {
@@ -180,6 +192,10 @@ class Softmax : public Op<T> {
       gradient<T> <<<gridDim, blockDim>>>(a->data(), _labels->data(), a->grad(), J, K);
 
       cudaDeviceSynchronize();
+    }
+
+    void set_labels(uint32_t *labels) {
+      _labels->set_data(labels);
     }
     
 };
