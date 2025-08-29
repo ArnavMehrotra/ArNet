@@ -149,7 +149,7 @@ class Softmax : public Op<T> {
         throw std::invalid_argument("Softmax requires exactly 2 tensors");
       }
 
-      int n = this->_tensors.back()->shape[0];
+      int n = this->_tensors.back()->shape()[0];
       _labels = new Tensor<uint32_t>({n});
       if(labels != nullptr) {
         cudaMemcpy(_labels->data(), labels, n * sizeof(uint32_t), cudaMemcpyHostToDevice);
