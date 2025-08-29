@@ -12,8 +12,8 @@ class Net {
         std::vector<Op<T>*> _ops;
 
         Linear<T>* create_linear(Tensor <T>* input, int in_dim, int out_dim) {
-            int n = input.shape()[0];
-            std::assert(input.shape()[1] == in_dim);
+            int n = input->shape()[0];
+            std::assert(input->shape()[1] == in_dim);
             Tensor<T> *w = new Tensor<T>({in_dim, out_dim}, true, true);
             Tensor<T> *b = new Tensor<T>({out_dim}, true, true);
             Tensor<T> *z = new Tensor<T>({n, out_dim});
@@ -70,7 +70,7 @@ class Net {
             Tensor<T> *in_tensor = _ops[0]->tensors()[0];
             assert(in_tensor->shape()[0] == in_dim && in_tensor->shape()[1] == n_samples);
             in_tensor->set_data(data);
-            ((Softmax*) _ops.back())->set_labels(labels);
+            ((Softmax<T>*) _ops.back())->set_labels(labels);
         } 
 
         void zero_grad() {
@@ -85,11 +85,13 @@ class Net {
             }
         }
 
-        void forward(T* data, uint32_t *labels, int n_samples, int in_dim) {
+        T* forward(T* data, uint32_t *labels, int n_samples, int in_dim) {
             load_data(data, labels, n_samples, in_dim);
             for (Op<T>* op : _ops) {
                 op->forward();
             }
+
+            return _ops.back()->tensors().back()->to_host();
         }
 
         void forward() {

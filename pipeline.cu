@@ -79,7 +79,7 @@ extern "C" void big_test(float *X, int n, int in_dim, int out_dim, int hidden_di
         nn.zero_grad();
     }
 
-    float *result = nn.get_output()->to_host();
+    float *result = forward(X, labels, n, in_dim);
     memcpy(out, result, n * out_dim * sizeof(float));
     free(result);
 }
