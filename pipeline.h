@@ -13,7 +13,7 @@ class Net {
 
         Linear<T>* create_linear(Tensor <T>* input, int in_dim, int out_dim) {
             int n = input->shape()[0];
-            std::assert(input->shape()[1] == in_dim);
+            assert(input->shape()[1] == in_dim);
             Tensor<T> *w = new Tensor<T>({in_dim, out_dim}, true, true);
             Tensor<T> *b = new Tensor<T>({out_dim}, true, true);
             Tensor<T> *z = new Tensor<T>({n, out_dim});
