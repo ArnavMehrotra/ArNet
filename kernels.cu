@@ -32,7 +32,7 @@ template <typename T>
 __global__ void sumCols(T *A, T *B, int J, int K) {
   int col = blockIdx.x;
 
-  extern __shared__ T s_data[BLOCK_SIZE];
+  __shared__ T s_data[BLOCK_SIZE];
   T local_sum = 0; 
 
   for(int i = threadIdx.x; i < J; i += (BLOCK_SIZE)) {
@@ -77,8 +77,8 @@ __global__ void linear(T *A, T *B, T *C, T *D, int J, int K, int M, int N) {
   int col = blockIdx.x * blockDim.x + threadIdx.x;
   int row = blockIdx.y * blockDim.y + threadIdx.y;
 
-  extern __shared__ T a[BLOCK_SIZE][BLOCK_SIZE];
-  extern __shared__ T b[BLOCK_SIZE][BLOCK_SIZE];
+  __shared__ T a[BLOCK_SIZE][BLOCK_SIZE];
+  __shared__ T b[BLOCK_SIZE][BLOCK_SIZE];
 
   T sum = 0;
 
@@ -122,8 +122,8 @@ __global__ void gemm2(T *A, T *B, T *C, int J, int K, int M, int N) {
   int col = blockIdx.x * blockDim.x + threadIdx.x;
   int row = blockIdx.y * blockDim.y + threadIdx.y;
 
-  extern __shared__ T a[BLOCK_SIZE][BLOCK_SIZE];
-  extern __shared__ T b[BLOCK_SIZE][BLOCK_SIZE];
+  __shared__ T a[BLOCK_SIZE][BLOCK_SIZE];
+  __shared__ T b[BLOCK_SIZE][BLOCK_SIZE];
 
   T sum = 0;
 
@@ -218,7 +218,7 @@ __global__ void gradient(T *A, uint32_t *Y, T *B, int J, int K) {
   int col = threadIdx.x;
   int row = blockIdx.x;
 
-  extern __shared__ T s_data[BLOCK_SIZE];
+  __shared__ T s_data[BLOCK_SIZE];
   T local_max = (T) -INFINITY;
 
   for(int i = col; i < K; i += BLOCK_SIZE) {
@@ -278,7 +278,7 @@ __global__ void softmax(T *A, T *B, int J, int K) {
   int col = threadIdx.x;
   int row = blockIdx.x;
 
-  extern __shared__ T s_data[BLOCK_SIZE];
+  __shared__ T s_data[BLOCK_SIZE];
   T local_max = (T) -INFINITY;
 
   for(int i = col; i < K; i += BLOCK_SIZE) {
