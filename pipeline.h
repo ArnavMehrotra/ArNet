@@ -33,26 +33,28 @@ class Net {
             
             Tensor<T> *input_tensor = new Tensor<T>({n, in_dim});
             _ops.push_back(create_linear(input_tensor, in_dim, hidden_layers > 0 ? hidden_dim : out_dim));
-
-            return;
             
-            Tensor<T> *a = _ops.back()->tensors().back();
             if(hidden_layers > 0) {
+                //add first activation for hidden layers
+                Tensor<T> *a = _ops.back()->tensors().back();
                 Tensor<T> *relu_out = new Tensor<T>({n, hidden_dim});
                 _ops.push_back(new Relu<T>({a, relu_out}));
                 a = relu_out;
-            }
-            for(int i = 0; i < hidden_layers - 1; i++) {
-                _ops.push_back(create_linear(a, hidden_dim, hidden_dim));
-                Tensor<T> *z = _ops.back()->tensors().back();
-                Tensor<T> *a_next = new Tensor<T>({n, hidden_dim});
-                _ops.push_back(new Relu<T>({z, a_next}));
-                a = a_next;
-            }
-            if(hidden_layers > 0) {
+                
+                //add remaining hidden layers and activations
+                for(int i = 0; i < hidden_layers - 1; i++) {
+                    _ops.push_back(create_linear(a, hidden_dim, hidden_dim));
+                    Tensor<T> *z = _ops.back()->tensors().back();
+                    Tensor<T> *a_next = new Tensor<T>({n, hidden_dim});
+                    _ops.push_back(new Relu<T>({z, a_next}));
+                    a = a_next;
+                }
+                
+                //final hidden linear layer before softmax
                 _ops.push_back(create_linear(a, hidden_dim, out_dim));
             }
-
+            
+            //softmax for logits
             Tensor<T> *y = _ops.back()->tensors().back();
             Tensor<T> *logits = new Tensor<T>({n, out_dim});
             _ops.push_back(new Softmax<T>({y, logits}));
