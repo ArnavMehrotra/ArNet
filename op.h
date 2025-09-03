@@ -197,6 +197,10 @@ class Softmax : public Op<T> {
     void set_labels(uint32_t *labels) {
       _labels->set_data(labels);
     }
+
+    ~Softmax() {
+      if(_labels != nullptr) delete _labels; 
+    }
     
 };
 

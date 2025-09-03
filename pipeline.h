@@ -30,9 +30,11 @@ class Net {
             if ((hidden_dim == 0 ) != (hidden_layers == 0)) {
                 throw std::invalid_argument("hidden dims > 0 requires hidden layers > 0 and vice versa"); 
             }
-
+            
             Tensor<T> *input_tensor = new Tensor<T>({n, in_dim});
             _ops.push_back(create_linear(input_tensor, in_dim, hidden_layers > 0 ? hidden_dim : out_dim));
+
+            return;
             
             Tensor<T> *a = _ops.back()->tensors().back();
             if(hidden_layers > 0) {
