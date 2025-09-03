@@ -54,6 +54,7 @@ class Net {
                 _ops.push_back(create_linear(a, hidden_dim, out_dim));
             }
             
+            return;
             //softmax for logits
             Tensor<T> *y = _ops.back()->tensors().back();
             Tensor<T> *logits = new Tensor<T>({n, out_dim});
