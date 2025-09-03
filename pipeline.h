@@ -57,7 +57,6 @@ class Net {
             //softmax for logits
             Tensor<T> *y = _ops.back()->tensors().back();
             Tensor<T> *logits = new Tensor<T>({n, out_dim});
-            return;
             _ops.push_back(new Softmax<T>({y, logits}));
         }
 
