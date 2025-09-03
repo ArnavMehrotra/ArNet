@@ -34,6 +34,7 @@ class Net {
             Tensor<T> *input_tensor = new Tensor<T>({n, in_dim});
             _ops.push_back(create_linear(input_tensor, in_dim, hidden_layers > 0 ? hidden_dim : out_dim));
             
+            return;
             if(hidden_layers > 0) {
                 //add first activation for hidden layers
                 Tensor<T> *a = _ops.back()->tensors().back();
@@ -54,7 +55,6 @@ class Net {
                 _ops.push_back(create_linear(a, hidden_dim, out_dim));
             }
             
-            return;
             //softmax for logits
             Tensor<T> *y = _ops.back()->tensors().back();
             Tensor<T> *logits = new Tensor<T>({n, out_dim});
