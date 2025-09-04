@@ -70,8 +70,7 @@ extern "C" void big_test(float *X, int n, int in_dim, int out_dim, int hidden_di
     uint32_t *labels, float *out, float lr, int epochs) {
     
     Net<float> nn = Net<float>(n, in_dim, out_dim, hidden_dim, hidden_layers);
-    
-    return;
+
     //"training loop"
     for(int i = 0; i < epochs; i ++) {
         nn.forward(X, labels, n, in_dim); 
