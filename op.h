@@ -155,7 +155,8 @@ class Softmax : public Op<T> {
         cudaDeviceSynchronize();
       }
       else {
-        _labels = nullptr;
+        cudaMemset(_labels->data(), 0, n * sizeof(uint32_t));
+        cudaDeviceSynchronize();
       }
     }
 
