@@ -52,8 +52,8 @@ class Tensor {
         T* w = (T*)malloc(_size);
 
         static thread_local std::mt19937 rng(std::random_device{}());
-        std::uniform_real_distribution<T> dist((T)-0.1, (T)0.1);
-        for(int i = 0; i < _n_elem; i++) w[i] = dist(rng);
+        std::uniform_real_distribution<float> dist(-0.1, 0.1);
+        for(int i = 0; i < _n_elem; i++) w[i] = (T) dist(rng);
 
         cudaMemcpy(_data, w, _size, cudaMemcpyHostToDevice);
         cudaDeviceSynchronize();
