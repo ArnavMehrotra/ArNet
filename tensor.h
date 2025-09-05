@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "kernels.h"
+#include <random>
 
 
 template <typename T>
@@ -48,7 +49,16 @@ class Tensor {
       if(random_init) {
         //TODO: He initialization
         //placeholder code
-        cudaMemset(_data, 0.01f, _size);
+        T* w = (T*)malloc(_size);
+
+        static thread_local std::mt19937 rng(std::random_device{}());
+        std::uniform_real_distribution<T> dist(-0.1, 0.1);
+        for(int i = 0; i < _n_elem; i++) w[i] = dist(rng);
+
+        cudaMemcpy(_data, w, _size, cudaMemcpyHostToDevice);
+        cudaDeviceSynchronize();
+        free(w);
+
       } else {
         cudaMemset(_data, 0, _size);
       }
