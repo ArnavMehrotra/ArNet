@@ -57,15 +57,13 @@ class Net {
             //softmax for logits
             Tensor<T> *y = _ops.back()->tensors().back();
             Tensor<T> *logits = new Tensor<T>({n, out_dim});
+            return;
             _ops.push_back(new Softmax<T>({y, logits}));
         }
 
         ~Net() {
             for (Op<T>* op : _ops) {
-                for(Tensor<T>* tensor : op->tensors()) {
-                    delete tensor;
-                }
-                delete op;
+                op->tensors().clear();
             }
             _ops.clear();
         }
