@@ -10,17 +10,23 @@ template<typename T>
 class Net {
     private:
         std::vector<Op<T>*> _ops;
+        std::vector<Tensor<T>*> _tensors;
+
+        Tensor<T>* make_tensor(std::vector<int> shape, bool weight_decay = false, bool random_init = false) {
+            auto t = new Tensor<T>(shape, weight_decay, random_init);
+            _tensors.push_back(t);
+            return t;
+        }
 
         Linear<T>* create_linear(Tensor <T>* input, int in_dim, int out_dim) {
             int n = input->shape()[0];
             assert(input->shape()[1] == in_dim);
-            Tensor<T> *w = new Tensor<T>({in_dim, out_dim}, true, true);
-            Tensor<T> *b = new Tensor<T>({out_dim}, true, true);
-            Tensor<T> *z = new Tensor<T>({n, out_dim});
+            Tensor<T> *w = make_tensor({in_dim, out_dim}, true, true);
+            Tensor<T> *b = make_tensor({out_dim}, true, true);
+            Tensor<T> *z = make_tensor({n, out_dim});
 
             return new Linear<T>({input, w, b, z});
         }
-
 
     public:
         Net(std::vector<Op<T>*> ops) {
@@ -31,13 +37,13 @@ class Net {
                 throw std::invalid_argument("hidden dims > 0 requires hidden layers > 0 and vice versa"); 
             }
             
-            Tensor<T> *input_tensor = new Tensor<T>({n, in_dim});
+            Tensor<T> *input_tensor = make_tensor({n, in_dim});
             _ops.push_back(create_linear(input_tensor, in_dim, hidden_layers > 0 ? hidden_dim : out_dim));
             
             if(hidden_layers > 0) {
                 //add first activation for hidden layers
                 Tensor<T> *a = _ops.back()->tensors().back();
-                Tensor<T> *relu_out = new Tensor<T>({n, hidden_dim});
+                Tensor<T> *relu_out = make_tensor({n, hidden_dim});
                 _ops.push_back(new Relu<T>({a, relu_out}));
                 a = relu_out;
                 
@@ -45,7 +51,7 @@ class Net {
                 for(int i = 0; i < hidden_layers - 1; i++) {
                     _ops.push_back(create_linear(a, hidden_dim, hidden_dim));
                     Tensor<T> *z = _ops.back()->tensors().back();
-                    Tensor<T> *a_next = new Tensor<T>({n, hidden_dim});
+                    Tensor<T> *a_next = make_tensor({n, hidden_dim});
                     _ops.push_back(new Relu<T>({z, a_next}));
                     a = a_next;
                 }
@@ -56,20 +62,27 @@ class Net {
             
             //softmax for logits
             Tensor<T> *y = _ops.back()->tensors().back();
-            Tensor<T> *logits = new Tensor<T>({n, out_dim});
+            Tensor<T> *logits = make_tensor({n, out_dim});
             return;
             _ops.push_back(new Softmax<T>({y, logits}));
         }
 
         ~Net() {
             for (Op<T>* op : _ops) {
-                op->tensors().clear();
+                delete op;
+                op = nullptr;
             }
             _ops.clear();
+
+            for(Tensor<T>* tensor : _tensors) {
+                delete tensor;
+                tensor = nullptr;
+            }
+            _tensors.clear();
         }
 
         void load_data(T* data, uint32_t *labels, int n_samples, int in_dim) {
-            Tensor<T> *in_tensor = _ops[0]->tensors()[0];
+            Tensor<T> *in_tensor = _tensors[0];
             assert(in_tensor->shape()[0] == n_samples && in_tensor->shape()[1] == in_dim);
             in_tensor->set_data(data);
             ((Softmax<T>*) _ops.back())->set_labels(labels);
