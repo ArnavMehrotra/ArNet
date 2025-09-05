@@ -72,7 +72,7 @@ class Net {
 
         void load_data(T* data, uint32_t *labels, int n_samples, int in_dim) {
             Tensor<T> *in_tensor = _ops[0]->tensors()[0];
-            assert(in_tensor->shape()[0] == in_dim && in_tensor->shape()[1] == n_samples);
+            assert(in_tensor->shape()[0] == n_samples && in_tensor->shape()[1] == in_dim);
             in_tensor->set_data(data);
             ((Softmax<T>*) _ops.back())->set_labels(labels);
         } 
@@ -96,12 +96,6 @@ class Net {
             }
 
             return _ops.back()->tensors().back()->to_host();
-        }
-
-        void forward() {
-            for (Op<T>* op : _ops) {
-                op->forward();
-            }
         }
 
         void backward() {
